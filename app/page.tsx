@@ -162,6 +162,8 @@ function ContactForm() {
 
 export default function Page() {
   const [cartCount, setCartCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
 
   // Get cart count from localStorage
   const getCartCount = () => {
@@ -179,13 +181,35 @@ export default function Page() {
     return 0;
   };
 
-  // Update cart count on component mount and when localStorage changes
+  // Check login status
+  const checkLoginStatus = () => {
+    if (typeof window !== 'undefined') {
+      const user = localStorage.getItem('user');
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          setIsLoggedIn(true);
+          setUserName(userData.name || '');
+        } catch (e) {
+          setIsLoggedIn(false);
+          setUserName('');
+        }
+      } else {
+        setIsLoggedIn(false);
+        setUserName('');
+      }
+    }
+  };
+
+  // Update cart count and login status on component mount and when localStorage changes
   useEffect(() => {
     setCartCount(getCartCount());
+    checkLoginStatus();
     
     // Listen for storage changes (in case cart is updated in another tab)
     const handleStorageChange = () => {
       setCartCount(getCartCount());
+      checkLoginStatus();
     };
     
     window.addEventListener('storage', handleStorageChange);
@@ -193,6 +217,7 @@ export default function Page() {
     // Also check for changes periodically
     const interval = setInterval(() => {
       setCartCount(getCartCount());
+      checkLoginStatus();
     }, 1000);
     
     return () => {
@@ -226,10 +251,35 @@ export default function Page() {
             </a>
           </nav>
           <div className="flex items-center gap-3">
-            
-            <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
-              <a href="/login">Login</a>
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <span className="text-sm text-slate-600 hidden md:block">Welcome, {userName}</span>
+                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
+                  <a href="/profile">Profile</a>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-rose-600 text-rose-700 hover:bg-rose-50"
+                  onClick={() => {
+                    localStorage.removeItem('user');
+                    setIsLoggedIn(false);
+                    setUserName('');
+                    window.location.href = '/';
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
+                  <a href="/signup">Sign Up</a>
+                </Button>
+                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
+                  <a href="/login">Login</a>
+                </Button>
+              </>
+            )}
           </div>
         </Container>
       </header>

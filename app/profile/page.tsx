@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -12,18 +12,72 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   
-  // Mock user data - in a real app this would come from an API
+  // Check for tab query parameter
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab && ['profile', 'password', 'orders', 'loyalty'].includes(tab)) {
+        setActiveTab(tab);
+      }
+    }
+  }, []);
+  
+  // Load user data from localStorage
   const [userData, setUserData] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "(555) 123-4567",
-    address: "123 Main St, Apt 4B, New York, NY 10001",
-    joinDate: "January 15, 2023",
-    loyaltyPoints: 1250,
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    joinDate: "",
+    loyaltyPoints: 0,
   });
+
+  // Load user data and orders on mount
+  useEffect(() => {
+    setIsClient(true);
+    const user = localStorage.getItem('user');
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        setUserData({
+          name: userData.name || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+          address: userData.address || "",
+          city: userData.city || "",
+          state: userData.state || "",
+          zipCode: userData.zipCode || "",
+          joinDate: userData.joinDate || new Date().toLocaleDateString(),
+          loyaltyPoints: userData.loyaltyPoints || 0,
+        });
+        setFormData({
+          name: userData.name || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+          address: userData.address || "",
+        });
+      } catch (e) {
+        console.error('Failed to parse user data', e);
+        router.push('/login');
+      }
+    } else {
+      // No user logged in, redirect to login
+      router.push('/login');
+    }
+  }, [router]);
   
-  const [formData, setFormData] = useState({ ...userData });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -102,9 +156,38 @@ export default function ProfilePage() {
       return;
     }
     
-    // Save data (in a real app this would be an API call)
-    setUserData(formData);
-    setIsEditing(false);
+    // Save data to localStorage
+    try {
+      const updatedUserData = {
+        ...userData,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+      };
+      
+      // Update localStorage
+      localStorage.setItem('user', JSON.stringify(updatedUserData));
+      
+      // Update users array
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const userIndex = users.findIndex((u: any) => u.email === userData.email);
+      if (userIndex !== -1) {
+        users[userIndex] = {
+          ...users[userIndex],
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+        };
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+      
+      setUserData(updatedUserData);
+      setIsEditing(false);
+    } catch (e) {
+      console.error('Failed to save user data', e);
+    }
   };
 
   const handleChangePassword = () => {
@@ -156,9 +239,18 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
-    // In a real app, this would clear the user session
+    // Clear user session from localStorage
+    localStorage.removeItem('user');
     router.push("/");
   };
+
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-emerald-50 flex items-center justify-center">
+        <div className="animate-pulse text-slate-600">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-emerald-50">
@@ -365,7 +457,12 @@ export default function ProfilePage() {
                         
                         <div>
                           <h3 className="text-sm font-medium text-slate-500">Delivery Address</h3>
-                          <p className="mt-1 text-slate-800">{userData.address}</p>
+                          <p className="mt-1 text-slate-800">
+                            {userData.address}
+                            {userData.city && `, ${userData.city}`}
+                            {userData.state && `, ${userData.state}`}
+                            {userData.zipCode && ` ${userData.zipCode}`}
+                          </p>
                         </div>
                         
                         <div>
@@ -478,16 +575,64 @@ export default function ProfilePage() {
                   <CardTitle>Order History</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-12">
-                    <div className="mx-auto h-16 w-16 rounded-full bg-emerald-100 grid place-items-center text-emerald-600 mb-4">
-                      <CreditCard className="h-8 w-8" />
-                    </div>
-                    <h3 className="text-lg font-medium text-slate-800 mb-1">No orders yet</h3>
-                    <p className="text-slate-600 mb-6">Your order history will appear here once you place an order.</p>
-                    <Button asChild className="bg-emerald-700 hover:bg-emerald-800">
-                      <Link href="/">Start Ordering</Link>
-                    </Button>
-                  </div>
+                  {(() => {
+                    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                    const userOrders = orders.filter((order: any) => order.userEmail === userData.email);
+                    
+                    if (userOrders.length === 0) {
+                      return (
+                        <div className="text-center py-12">
+                          <div className="mx-auto h-16 w-16 rounded-full bg-emerald-100 grid place-items-center text-emerald-600 mb-4">
+                            <CreditCard className="h-8 w-8" />
+                          </div>
+                          <h3 className="text-lg font-medium text-slate-800 mb-1">No orders yet</h3>
+                          <p className="text-slate-600 mb-6">Your order history will appear here once you place an order.</p>
+                          <Button asChild className="bg-emerald-700 hover:bg-emerald-800">
+                            <Link href="/">Start Ordering</Link>
+                          </Button>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div className="space-y-4">
+                        {userOrders.reverse().map((order: any, index: number) => (
+                          <div key={index} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+                            <div className="flex justify-between items-start mb-4">
+                              <div>
+                                <h3 className="font-semibold text-slate-800">Order #{order.orderId}</h3>
+                                <p className="text-sm text-slate-600 mt-1">{order.orderDate}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-emerald-700">${order.total.toFixed(2)}</p>
+                                <p className="text-xs text-slate-500 mt-1 capitalize">{order.status || 'Completed'}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="border-t border-gray-100 pt-4">
+                              <h4 className="text-sm font-medium text-slate-700 mb-2">Items:</h4>
+                              <ul className="space-y-1">
+                                {order.items.map((item: any, itemIndex: number) => (
+                                  <li key={itemIndex} className="text-sm text-slate-600 flex justify-between">
+                                    <span>{item.name} x{item.quantity}</span>
+                                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            
+                            {order.deliveryAddress && (
+                              <div className="border-t border-gray-100 pt-4 mt-4">
+                                <p className="text-xs text-slate-500">
+                                  <span className="font-medium">Delivery to:</span> {order.deliveryAddress}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </CardContent>
               </Card>
             )}

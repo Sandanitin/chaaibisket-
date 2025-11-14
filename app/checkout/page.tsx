@@ -108,6 +108,15 @@ export default function CheckoutPage() {
   // Initialize cart from localStorage
   useEffect(() => {
     setIsClient(true);
+    
+    // Check if user is logged in
+    const user = localStorage.getItem('user');
+    if (!user) {
+      // User not logged in, redirect to login
+      router.push('/login?returnUrl=/checkout');
+      return;
+    }
+    
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       try {
@@ -128,21 +137,25 @@ export default function CheckoutPage() {
       router.push('/');
     }
     
-    // Load user info if available
-    const user = localStorage.getItem('user');
+    // Load user info
     if (user) {
       try {
         const userData = JSON.parse(user);
         setDeliveryInfo(prev => ({
           ...prev,
           name: userData.name || '',
-          email: userData.email || ''
+          email: userData.email || '',
+          phone: userData.phone || '',
+          address: userData.address || '',
+          city: userData.city || '',
+          state: userData.state || '',
+          zipCode: userData.zipCode || ''
         }));
       } catch (e) {
         console.error('Failed to parse user data', e);
       }
     }
-  }, []);
+  }, [router]);
 
   // Find menu item by ID
   const getMenuItem = (id: number) => {
@@ -188,8 +201,75 @@ export default function CheckoutPage() {
 
   // Handle place order
   const handlePlaceOrder = () => {
-    // In a real app, you would send the order to your backend here
-    console.log('Order placed:', { cart, deliveryInfo, paymentInfo });
+    // Get user info
+    const user = localStorage.getItem('user');
+    let userEmail = '';
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        userEmail = userData.email || '';
+      } catch (e) {
+        console.error('Failed to parse user data', e);
+      }
+    }
+    
+    // Create order object
+    const orderItems = cart.map(item => {
+      const menuItem = getMenuItem(item.id);
+      return {
+        id: item.id,
+        name: menuItem?.name || '',
+        price: menuItem?.price || 0,
+        quantity: item.quantity,
+      };
+    });
+    
+    const order = {
+      orderId: `ORD-${Date.now()}`,
+      userEmail: userEmail || deliveryInfo.email,
+      orderDate: new Date().toLocaleString(),
+      items: orderItems,
+      deliveryInfo: deliveryInfo,
+      paymentMethod: 'Cash on Delivery',
+      subtotal: calculateSubtotal(),
+      tax: calculateTax(),
+      deliveryFee: calculateDeliveryFee(),
+      total: calculateTotal(),
+      status: 'Pending',
+      deliveryAddress: `${deliveryInfo.address}, ${deliveryInfo.city}, ${deliveryInfo.state} ${deliveryInfo.zipCode}`,
+    };
+    
+    // Save order to localStorage
+    try {
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      orders.push(order);
+      localStorage.setItem('orders', JSON.stringify(orders));
+      
+      // Update user loyalty points (1 point per dollar)
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          const pointsEarned = Math.floor(calculateSubtotal());
+          const updatedUser = {
+            ...userData,
+            loyaltyPoints: (userData.loyaltyPoints || 0) + pointsEarned,
+          };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          
+          // Update users array
+          const users = JSON.parse(localStorage.getItem('users') || '[]');
+          const userIndex = users.findIndex((u: any) => u.email === userData.email);
+          if (userIndex !== -1) {
+            users[userIndex].loyaltyPoints = updatedUser.loyaltyPoints;
+            localStorage.setItem('users', JSON.stringify(users));
+          }
+        } catch (e) {
+          console.error('Failed to update loyalty points', e);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to save order', e);
+    }
     
     // Clear cart
     localStorage.removeItem('cart');
@@ -199,7 +279,7 @@ export default function CheckoutPage() {
     
     // Redirect to order confirmation after 3 seconds
     setTimeout(() => {
-      router.push('/');
+      router.push('/profile?tab=orders');
     }, 3000);
   };
 

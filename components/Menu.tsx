@@ -103,6 +103,16 @@ const Menu = () => {
     setIsClient(true);
     setCurrentTime(new Date());
     
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (e) {
+        console.error('Failed to parse cart from localStorage', e);
+      }
+    }
+    
     // Update current time every minute
     const timer = setInterval(() => {
       setCurrentTime(new Date());

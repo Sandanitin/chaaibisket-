@@ -31,6 +31,7 @@ export default function SignupPage() {
     city: "",
     state: "",
     zipCode: "",
+    general: "",
   });
 
   const validateEmail = (email: string) => {
@@ -65,6 +66,7 @@ export default function SignupPage() {
       city: "",
       state: "",
       zipCode: "",
+      general: "",
     };
     
     if (!formData.name) {
@@ -126,11 +128,64 @@ export default function SignupPage() {
     
     setIsLoading(true);
     
-    // Simulate signup API call
-    setTimeout(() => {
+    // Save user to localStorage
+    try {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      
+      // Check if user already exists
+      const existingUser = users.find((u: any) => u.email === formData.email);
+      if (existingUser) {
+        setErrors({
+          ...newErrors,
+          email: "An account with this email already exists. Please sign in instead."
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Create new user
+      const newUser = {
+        id: Date.now().toString(),
+        name: formData.name,
+        email: formData.email,
+        password: formData.password, // In production, this should be hashed
+        phone: '',
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        joinDate: new Date().toLocaleDateString(),
+        loyaltyPoints: 0,
+      };
+      
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      // Save to session
+      const userSession = {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        address: newUser.address,
+        city: newUser.city,
+        state: newUser.state,
+        zipCode: newUser.zipCode,
+        joinDate: newUser.joinDate,
+        loyaltyPoints: newUser.loyaltyPoints,
+      };
+      
+      localStorage.setItem('user', JSON.stringify(userSession));
+      
       setIsLoading(false);
       router.push("/profile"); // Redirect to profile page after signup
-    }, 1500);
+    } catch (error) {
+      setErrors({
+        ...newErrors,
+        general: "An error occurred. Please try again."
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -145,6 +200,12 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                {errors.general}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium">Full Name</label>
               <input
