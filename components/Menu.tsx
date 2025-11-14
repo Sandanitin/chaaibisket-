@@ -1,7 +1,10 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { Plus, ShoppingCart, Clock as ClockIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // Menu items with categories and time availability
 const menuItems = [
@@ -66,40 +69,49 @@ const menuTimings = [
   {
     id: 'breakfast',
     name: 'BREAKFAST MENU',
-    time: '8:00 AM - 11:30 AM',
-    active: false
+    time: '8:00 AM - 11:30 AM'
   },
   {
     id: 'lunch',
     name: 'LUNCH MENU',
-    time: '11:00 AM - 4:00 PM',
-    active: false
+    time: '11:00 AM - 4:00 PM'
   },
   {
     id: 'tea',
     name: 'TEA TIME',
-    time: '3:00 PM - 6:30 PM',
-    active: false
+    time: '3:00 PM - 6:30 PM'
   },
   {
     id: 'dinner',
     name: 'DINNER MENU',
-    time: '6:30 PM - 10:30 PM',
-    active: false
+    time: '6:30 PM - 10:30 PM'
   }
 ];
 
 const Menu = () => {
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeMenu, setActiveMenu] = useState('breakfast');
+  const [showAllItems, setShowAllItems] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [cart, setCart] = useState<{id: number, quantity: number}[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Set up client-side only code
   useEffect(() => {
     setIsClient(true);
     setCurrentTime(new Date());
+    
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (e) {
+        console.error('Failed to parse cart from localStorage', e);
+      }
+    }
     
     // Update current time every minute
     const timer = setInterval(() => {
@@ -158,23 +170,41 @@ const Menu = () => {
   }
 
   // Filter items by active category and menu time
-  const filteredItems = (activeCategory === 'All' 
-    ? menuItems.filter(item => item.availableTime.includes(activeMenu))
-    : menuItems.filter(item => 
-        item.category === activeCategory && 
-        item.availableTime.includes(activeMenu)
-      )
-  );
+  const filteredItems = (() => {
+    // If showAllItems is true, only filter by category if one is selected
+    if (showAllItems) {
+      return activeCategory === 'All'
+        ? [...menuItems] // Return all items if no category selected
+        : menuItems.filter(item => item.category === activeCategory);
+    }
+    
+    // Otherwise, filter by both category and time
+    return activeCategory === 'All'
+      ? menuItems.filter(item => item.availableTime.includes(activeMenu))
+      : menuItems.filter(item => 
+          item.category === activeCategory && 
+          item.availableTime.includes(activeMenu)
+        );
+  })();
 
   const addToCart = (itemId: number) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === itemId);
+      let newCart;
       if (existingItem) {
-        return prevCart.map(item =>
+        newCart = prevCart.map(item =>
           item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
         );
+      } else {
+        newCart = [...prevCart, { id: itemId, quantity: 1 }];
       }
-      return [...prevCart, { id: itemId, quantity: 1 }];
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cart', JSON.stringify(newCart));
+      }
+      
+      return newCart;
     });
   };
 
@@ -193,135 +223,173 @@ const Menu = () => {
   };
 
   return (
-    <section id="menu" className="py-16 bg-white/70">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <span className="inline-flex items-center text-rose-600 text-sm font-semibold tracking-wider uppercase mb-2">
-            <ClockIcon className="h-4 w-4 mr-1" />
+    <section id="menu" className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        {/* Header Section */}
+        <div className="text-center mb-16">
+          <span className="inline-flex items-center bg-rose-100 text-rose-700 text-xs font-medium px-3 py-1.5 rounded-full mb-4">
+            <ClockIcon className="h-3.5 w-3.5 mr-1.5 -mt-0.5" />
             {currentTime?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Our Menu</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-serif">Our Menu</h2>
           <div className="w-20 h-1 bg-gradient-to-r from-rose-500 to-amber-500 mx-auto mb-8"></div>
-          
-          {/* Menu Time Tabs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {menuTimings.map((menu) => (
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+            Discover our carefully crafted selection of authentic Indian cuisine, prepared with the finest ingredients and traditional recipes.
+          </p>
+        </div>
+
+        {/* Menu Navigation */}
+        <div className="mb-16">
+          <div className={`flex flex-wrap justify-center gap-3 mb-6 transition-opacity duration-300 ${showAllItems ? 'opacity-50' : 'opacity-100'}`}>
+            {menuTimings.map((menu) => (!showAllItems && (
               <button
                 key={menu.id}
                 onClick={() => setActiveMenu(menu.id)}
-                className={`p-4 rounded-xl text-center transition-all duration-300 ${
+                className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 flex flex-col items-center justify-center min-w-[140px] ${
                   activeMenu === menu.id
                     ? 'bg-rose-600 text-white shadow-lg shadow-rose-100'
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                 }`}
               >
-                <div className="font-medium text-sm">{menu.name}</div>
-                <div className="text-xs mt-1">
-                  {menu.time.split(' - ')[0]} - {menu.time.split(' - ')[1]}
-                </div>
+                <span className="font-semibold text-base">{menu.name}</span>
+                <span className="block text-xs font-normal opacity-80 mt-1">
+                  {menu.time}
+                </span>
+              </button>
+            )))}
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            <button
+              onClick={() => {
+                setShowAllItems(!showAllItems);
+                // Reset to 'All' category when toggling showAllItems
+                if (!showAllItems) setActiveCategory('All');
+              }}
+              className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                showAllItems
+                  ? 'bg-emerald-600 text-white shadow-md hover:bg-emerald-700'
+                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+              }`}
+            >
+              {showAllItems ? (
+                <React.Fragment>
+                  <span>Viewing All Items</span>
+                  <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded-full">All Day</span>
+                </React.Fragment>
+              ) : 'View All Menu Items'}
+            </button>
+            
+            {categories.filter(cat => cat !== 'All').map((category) => (
+              <button
+                key={category}
+                onClick={() => {
+                  setActiveCategory(category);
+                  setShowAllItems(false);
+                }}
+                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                  activeCategory === category && !showAllItems
+                    ? 'bg-rose-600 text-white shadow-md'
+                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                }`}
+              >
+                {category}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeCategory === category
-                  ? 'bg-rose-600 text-white shadow-md shadow-rose-100'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        {/* Menu Items */}
+        {/* Menu Items Grid */}
         {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredItems.map((item) => (
               <div 
                 key={item.id} 
-                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-rose-50 flex flex-col md:flex-row h-48"
+                className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-rose-50 flex flex-col h-full"
               >
-                <div className="relative w-full md:w-2/5 h-48 md:h-auto">
+                <div className="relative h-56 w-full">
                   <Image
                     src={item.image}
                     alt={item.name}
                     fill
-                    sizes="(max-width: 768px) 100vw, 40vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    priority={item.id <= 3}
                   />
-                </div>
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-xl font-bold text-gray-900">{item.name}</h3>
-                      <span className="text-lg font-bold text-rose-600 whitespace-nowrap ml-4">
-                        ${item.price.toFixed(2)}
-                      </span>
+                  <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/70 to-transparent">
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <h3 className="text-xl font-bold text-white mb-1">{item.name}</h3>
+                        <div className="flex items-center">
+                          <span className="text-amber-300 font-medium text-lg">${item.price.toFixed(2)}</span>
+                          <span className="mx-3 text-white/30">•</span>
+                          <div className="flex flex-wrap gap-1">
+                            {item.availableTime.map(time => (
+                              <span 
+                                key={time} 
+                                className="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white/90 backdrop-blur-sm"
+                              >
+                                {time.charAt(0).toUpperCase() + time.slice(1)}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-gray-600 mt-2 text-sm">{item.description}</p>
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {item.availableTime.map(time => (
-                      <span 
-                        key={time} 
-                        className={`text-xs px-2.5 py-1 rounded-full ${
-                          time === activeMenu 
-                            ? 'bg-rose-100 text-rose-800' 
-                            : 'bg-gray-100 text-gray-600'
-                        }`}
-                      >
-                        {time.charAt(0).toUpperCase() + time.slice(1)}
-                      </span>
-                    ))}
+                </div>
+                
+                <div className="p-5 flex-1 flex flex-col">
+                  <p className="text-gray-600 text-sm mb-5 leading-relaxed">{item.description}</p>
+                  <div className="mt-auto">
+                    <Button 
+                      onClick={() => addToCart(item.id)}
+                      className="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-medium py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add to Order
+                    </Button>
                   </div>
-                  <Button 
-                    onClick={() => addToCart(item.id)}
-                    className="mt-4 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm hover:shadow transition-all duration-200 flex items-center justify-center gap-2 text-sm"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Add to Order
-                  </Button>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-2xl">
-            <p className="text-gray-500">No items available in this category for the selected time.</p>
+          <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+            <p className="text-gray-500 mb-4">No items available in this category for the selected time.</p>
             <Button 
               onClick={() => setActiveCategory('All')}
-              variant="ghost"
-              className="mt-4 text-rose-600 hover:bg-rose-50"
+              variant="outline"
+              className="border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300"
             >
-              View all items
+              View All Menu Items
             </Button>
           </div>
         )}
 
-        <div className="mt-16 text-center">
-          <Button
-            variant="outline"
-            className="group border-2 border-rose-500 text-rose-600 hover:bg-rose-50 hover:text-rose-700 px-8 py-5 text-base font-medium rounded-xl transition-all duration-300 inline-flex items-center gap-2"
-          >
-            <ShoppingCart className="h-5 w-5 group-hover:animate-bounce" />
-            View Cart & Checkout
-            {getCartCount() > 0 && (
-              <span className="ml-2 bg-rose-100 text-rose-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                {getCartCount()} {getCartCount() === 1 ? 'item' : 'items'}
-              </span>
-            )}
-          </Button>
-          <p className="mt-4 text-sm text-gray-500">
-            Menu items availability may vary by time of day.
-          </p>
+        {/* CTA Section */}
+        <div className="mt-20 text-center">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-3xl mx-auto">
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">Hungry for more?</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              Explore our full menu to discover more delicious options for any time of day.
+            </p>
+            <Button
+              onClick={() => router.push('/cart')}
+              className="bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-medium px-8 py-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 inline-flex items-center gap-2"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              View Cart & Checkout
+              {getCartCount() > 0 && (
+                <span className="ml-2 bg-white/20 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {getCartCount()} {getCartCount() === 1 ? 'item' : 'items'}
+                </span>
+              )}
+            </Button>
+            <p className="mt-3 text-xs text-gray-400">
+              Menu items availability may vary by time of day.
+            </p>
+          </div>
         </div>
       </div>
     </section>

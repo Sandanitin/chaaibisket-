@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({
     email: "",
     password: "",
+    general: "",
   });
 
   const validateEmail = (email: string) => {
@@ -34,7 +36,7 @@ export default function LoginPage() {
     
     // Clear error when user starts typing
     if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, [name]: "", general: "" }));
     }
   };
 
@@ -43,7 +45,11 @@ export default function LoginPage() {
     
     // Validation
     let valid = true;
-    const newErrors = { email: "", password: "" };
+    const newErrors = { 
+      email: "", 
+      password: "",
+      general: "",
+    };
     
     if (!formData.email) {
       newErrors.email = "Email is required";
@@ -56,9 +62,6 @@ export default function LoginPage() {
     if (!formData.password) {
       newErrors.password = "Password is required";
       valid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-      valid = false;
     }
     
     if (!valid) {
@@ -68,11 +71,49 @@ export default function LoginPage() {
     
     setIsLoading(true);
     
-    // Simulate login API call
-    setTimeout(() => {
+    // Check if user exists in localStorage
+    try {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find((u: any) => 
+        u.email === formData.email && u.password === formData.password
+      );
+      
+      if (user) {
+        // User found, save to session
+        const userSession = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone || '',
+          address: user.address || '',
+          city: user.city || '',
+          state: user.state || '',
+          zipCode: user.zipCode || '',
+          joinDate: user.joinDate || new Date().toLocaleDateString(),
+          loyaltyPoints: user.loyaltyPoints || 0,
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userSession));
+        
+        // Get return URL or default to home
+        const returnUrl = searchParams.get('returnUrl') || '/';
+        router.push(returnUrl);
+      } else {
+        setErrors({
+          email: "",
+          password: "",
+          general: "Invalid email or password. Please try again or sign up."
+        });
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setErrors({
+        email: "",
+        password: "",
+        general: "An error occurred. Please try again."
+      });
       setIsLoading(false);
-      router.push("/"); // Redirect to home page after login
-    }, 1500);
+    }
   };
 
   return (
@@ -87,6 +128,12 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                {errors.general}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">Email</label>
               <input
@@ -105,6 +152,7 @@ export default function LoginPage() {
                 <p id="email-error" className="text-sm text-red-600">{errors.email}</p>
               )}
             </div>
+            
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium">Password</label>
               <div className="relative">
@@ -116,7 +164,7 @@ export default function LoginPage() {
                   onChange={handleChange}
                   required
                   className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.password ? "border-red-500" : "border-slate-200"}`}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   aria-invalid={!!errors.password}
                   aria-describedby={errors.password ? "password-error" : undefined}
                 />
@@ -137,22 +185,10 @@ export default function LoginPage() {
                 <p id="password-error" className="text-sm text-red-600">{errors.password}</p>
               )}
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                />
-                <label htmlFor="remember" className="ml-2 block text-sm">Remember me</label>
-              </div>
-              <Link href="#" className="text-sm text-emerald-600 hover:text-emerald-700">
-                Forgot password?
-              </Link>
-            </div>
+            
             <Button 
               type="submit" 
-              className="w-full bg-emerald-700 hover:bg-emerald-800"
+              className="w-full bg-emerald-700 hover:bg-emerald-800 mt-6"
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign In"}
@@ -176,3 +212,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

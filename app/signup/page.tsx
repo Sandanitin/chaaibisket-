@@ -17,12 +17,21 @@ export default function SignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
   });
   const [errors, setErrors] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    general: "",
   });
 
   const validateEmail = (email: string) => {
@@ -48,7 +57,17 @@ export default function SignupPage() {
     
     // Validation
     let valid = true;
-    const newErrors = { name: "", email: "", password: "", confirmPassword: "" };
+    const newErrors = { 
+      name: "", 
+      email: "", 
+      password: "", 
+      confirmPassword: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      general: "",
+    };
     
     if (!formData.name) {
       newErrors.name = "Name is required";
@@ -79,6 +98,29 @@ export default function SignupPage() {
       valid = false;
     }
     
+    if (!formData.address) {
+      newErrors.address = "Address is required";
+      valid = false;
+    }
+    
+    if (!formData.city) {
+      newErrors.city = "City is required";
+      valid = false;
+    }
+    
+    if (!formData.state) {
+      newErrors.state = "State is required";
+      valid = false;
+    }
+    
+    if (!formData.zipCode) {
+      newErrors.zipCode = "ZIP code is required";
+      valid = false;
+    } else if (!/^[0-9]{5}(?:-[0-9]{4})?$/.test(formData.zipCode)) {
+      newErrors.zipCode = "Please enter a valid ZIP code";
+      valid = false;
+    }
+    
     if (!valid) {
       setErrors(newErrors);
       return;
@@ -86,11 +128,64 @@ export default function SignupPage() {
     
     setIsLoading(true);
     
-    // Simulate signup API call
-    setTimeout(() => {
+    // Save user to localStorage
+    try {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      
+      // Check if user already exists
+      const existingUser = users.find((u: any) => u.email === formData.email);
+      if (existingUser) {
+        setErrors({
+          ...newErrors,
+          email: "An account with this email already exists. Please sign in instead."
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Create new user
+      const newUser = {
+        id: Date.now().toString(),
+        name: formData.name,
+        email: formData.email,
+        password: formData.password, // In production, this should be hashed
+        phone: '',
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        joinDate: new Date().toLocaleDateString(),
+        loyaltyPoints: 0,
+      };
+      
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      // Save to session
+      const userSession = {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        address: newUser.address,
+        city: newUser.city,
+        state: newUser.state,
+        zipCode: newUser.zipCode,
+        joinDate: newUser.joinDate,
+        loyaltyPoints: newUser.loyaltyPoints,
+      };
+      
+      localStorage.setItem('user', JSON.stringify(userSession));
+      
       setIsLoading(false);
-      router.push("/"); // Redirect to home page after signup
-    }, 1500);
+      router.push("/profile"); // Redirect to profile page after signup
+    } catch (error) {
+      setErrors({
+        ...newErrors,
+        general: "An error occurred. Please try again."
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,6 +200,12 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                {errors.general}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium">Full Name</label>
               <input
@@ -209,9 +310,91 @@ export default function SignupPage() {
               )}
             </div>
             
+            <div className="border-t border-slate-200 pt-4 mt-4">
+              <h3 className="text-lg font-medium text-slate-800 mb-3">Delivery Address</h3>
+              
+              <div className="space-y-2">
+                <label htmlFor="address" className="text-sm font-medium">Street Address</label>
+                <input
+                  id="address"
+                  name="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.address ? "border-red-500" : "border-slate-200"}`}
+                  placeholder="123 Main St"
+                  aria-invalid={!!errors.address}
+                  aria-describedby={errors.address ? "address-error" : undefined}
+                />
+                {errors.address && (
+                  <p id="address-error" className="text-sm text-red-600">{errors.address}</p>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mt-3">
+                <div className="space-y-2">
+                  <label htmlFor="city" className="text-sm font-medium">City</label>
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    value={formData.city}
+                    onChange={handleChange}
+                    required
+                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.city ? "border-red-500" : "border-slate-200"}`}
+                    placeholder="City"
+                    aria-invalid={!!errors.city}
+                    aria-describedby={errors.city ? "city-error" : undefined}
+                  />
+                  {errors.city && (
+                    <p id="city-error" className="text-sm text-red-600">{errors.city}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <label htmlFor="state" className="text-sm font-medium">State</label>
+                  <input
+                    id="state"
+                    name="state"
+                    type="text"
+                    value={formData.state}
+                    onChange={handleChange}
+                    required
+                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.state ? "border-red-500" : "border-slate-200"}`}
+                    placeholder="State"
+                    aria-invalid={!!errors.state}
+                    aria-describedby={errors.state ? "state-error" : undefined}
+                  />
+                  {errors.state && (
+                    <p id="state-error" className="text-sm text-red-600">{errors.state}</p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="space-y-2 mt-3">
+                <label htmlFor="zipCode" className="text-sm font-medium">ZIP Code</label>
+                <input
+                  id="zipCode"
+                  name="zipCode"
+                  type="text"
+                  value={formData.zipCode}
+                  onChange={handleChange}
+                  required
+                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.zipCode ? "border-red-500" : "border-slate-200"}`}
+                  placeholder="12345"
+                  aria-invalid={!!errors.zipCode}
+                  aria-describedby={errors.zipCode ? "zipCode-error" : undefined}
+                />
+                {errors.zipCode && (
+                  <p id="zipCode-error" className="text-sm text-red-600">{errors.zipCode}</p>
+                )}
+              </div>
+            </div>
+            
             <Button 
               type="submit" 
-              className="w-full bg-emerald-700 hover:bg-emerald-800"
+              className="w-full bg-emerald-700 hover:bg-emerald-800 mt-6"
               disabled={isLoading}
             >
               {isLoading ? "Creating Account..." : "Sign Up"}

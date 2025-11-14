@@ -1,10 +1,12 @@
 
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Clock, Phone, Instagram, Utensils, Leaf, Coffee, Sandwich } from "lucide-react";
+import { MapPin, Clock, Phone, Instagram, Utensils, Leaf, Coffee, Sandwich, Sprout, ShoppingCart } from "lucide-react";
+import Menu from "@/components/Menu";
+import Image from "next/image";
 
 /**
  * Chai Bisket — Single‑file Landing Page
@@ -50,23 +52,23 @@ const art = {
   thumb1: toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><rect width='800' height='600' fill='#fff7ed'/><circle cx='400' cy='320' r='180' fill='#fde68a' stroke='#f59e0b' stroke-width='10'/><ellipse cx='400' cy='360' rx='220' ry='60' fill='none' stroke='#16a34a' stroke-width='8'/></svg>`),
   thumb2: toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><rect width='800' height='600' fill='#ecfeff'/><path d='M160 380 q240 -220 480 0' fill='#fcd34d' stroke='#f59e0b' stroke-width='10'/><path d='M160 380 q240 120 480 0' fill='#16a34a' opacity='0.25'/></svg>`),
   thumb3: toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><rect width='800' height='600' fill='#f0fdf4'/><rect x='220' y='260' width='360' height='120' rx='60' fill='#fff' stroke='#10b981' stroke-width='8'/></svg>`),
-  // Google Images for menu items
-  iraniChai: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Indian_chai.jpg/800px-Indian_chai.jpg",
-  biscuits: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Osmania_biscuit.jpg/800px-Osmania_biscuit.jpg",
-  biryani: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Hyderabadi_Chicken_Biryani.jpg/800px-Hyderabadi_Chicken_Biryani.jpg",
-  bunMaska: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Mumbai_Bun_Maska.jpg/800px-Mumbai_Bun_Maska.jpg",
-  vadaPav: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Vada_Pav.jpg/800px-Vada_Pav.jpg",
-  chicken65: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Chicken_65.jpg/800px-Chicken_65.jpg",
+  // Local images for menu items (Next.js public folder)
+  iraniChai: "/images/iran%20chaai.png",
+  biscuits: "/images/osimania%20biskets.png",
+  biryani: "/images/Hyderabadi%20Biryani.jpg",
+  bunMaska: "/images/Bun%20Maska.jpg",
+  vadaPav: "/images/Vada%20Pav.jpg",
+  chicken65: "/images/Chicken%2065.jpg",
   monuments: toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 900'><rect width='1200' height='900' fill='#ecfeff'/><path d='M160 700 h240 v-200 h-240 z' fill='#a7f3d0'/><path d='M520 700 h200 v-240 l-100 -80 -100 80 z' fill='#fef3c7'/><path d='M820 700 h220 v-160 h-220 z' fill='#fde68a'/></svg>`),
   gallery: [
-    toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' fill='#ecfeff'/><circle cx='400' cy='400' r='220' fill='#a7f3d0'/></svg>`),
-    toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' fill='#fef3c7'/><rect x='140' y='260' width='520' height='280' fill='#f59e0b' opacity='0.35'/></svg>`),
-    toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' fill='#f0fdf4'/><path d='M120 560 q280 -360 560 0' fill='none' stroke='#10b981' stroke-width='16'/></svg>`),
-    toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' fill='#fff7ed'/><g fill='#fbbf24'><circle cx='280' cy='420' r='60'/><circle cx='400' cy='360' r='60'/><circle cx='520' cy='420' r='60'/></g></svg>`),
-    toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' fill='#ecfccb'/><rect x='220' y='300' width='360' height='200' rx='30' fill='#84cc16'/></svg>`),
-    toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' fill='#e0f2fe'/><polygon points='150,620 650,620 400,220' fill='#38bdf8'/></svg>`),
-    toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' fill='#fff1f2'/><circle cx='400' cy='400' r='200' fill='#f472b6' opacity='0.7'/></svg>`),
-    toDataUri(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' fill='#fef2f2'/><rect x='200' y='280' width='400' height='240' fill='#ef4444' opacity='0.3'/></svg>`),
+    "/images/iran chaai.png",
+    "/images/osimania biskets.png",
+    "/images/Hyderabadi Biryani.jpg",
+    "/images/Bun Maska.jpg",
+    "/images/Vada Pav.jpg",
+    "/images/Chicken 65.jpg",
+    "/images/iran chaai.png",
+    "/images/osimania biskets.png",
   ],
 };
 
@@ -90,7 +92,10 @@ const SafeImage = ({ src, alt, className = "", label }: { src: string, alt?: str
           loading="lazy"
           referrerPolicy="no-referrer"
           className="h-full w-full object-cover"
-          onError={() => setBroken(true)}
+          onError={() => {
+            console.error(`Image failed to load: ${src}`);
+            setBroken(true);
+          }}
         />
       ) : (
         <Placeholder label={label || alt} />
@@ -140,15 +145,15 @@ function ContactForm() {
 
   return (
     <form className="grid gap-4" onSubmit={onSubmit}>
-      <input name="name" className="border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="Your name" required />
-      <input name="email" type="email" className="border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="Email" required />
-      <input name="phone" className="border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="Phone" />
+      <input name="name" className="border border-rose-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300" placeholder="Your name" required />
+      <input name="email" type="email" className="border border-rose-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300" placeholder="Email address" required />
+      <input name="phone" className="border border-rose-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300" placeholder="Phone number (optional)" />
       <input name="website" className="hidden" tabIndex={-1} autoComplete="off" />
-      <textarea name="message" rows={4} className="border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300" placeholder="Tell us about your event or question" required />
-      <Button className="bg-emerald-700 hover:bg-emerald-800" type="submit" disabled={status==="sending"}>
+      <textarea name="message" rows={4} className="border border-rose-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300" placeholder="Tell us about your event or question (e.g., party size, date, special requests)" required />
+      <Button className="bg-rose-700 hover:bg-rose-800" type="submit" disabled={status==="sending"}>
         {status==="sending" ? "Sending..." : "Send Message"}
       </Button>
-      {status==="ok" && <div className="text-sm text-emerald-700">Thanks! We’ll get back to you shortly.</div>}
+      {status==="ok" && <div className="text-sm text-rose-700 font-medium">Thanks! We’ve received your message and will get back to you shortly.</div>}
       {status==="error" && <div className="text-sm text-red-600">Something went wrong. Please try again. {errorMsg && <span className="opacity-70">({errorMsg})</span>}</div>}
     </form>
   );
@@ -156,31 +161,125 @@ function ContactForm() {
 
 
 export default function Page() {
+  const [cartCount, setCartCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  // Get cart count from localStorage
+  const getCartCount = () => {
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        try {
+          const cart = JSON.parse(savedCart);
+          return cart.reduce((total: number, item: { quantity: number }) => total + item.quantity, 0);
+        } catch (e) {
+          return 0;
+        }
+      }
+    }
+    return 0;
+  };
+
+  // Check login status
+  const checkLoginStatus = () => {
+    if (typeof window !== 'undefined') {
+      const user = localStorage.getItem('user');
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          setIsLoggedIn(true);
+          setUserName(userData.name || '');
+        } catch (e) {
+          setIsLoggedIn(false);
+          setUserName('');
+        }
+      } else {
+        setIsLoggedIn(false);
+        setUserName('');
+      }
+    }
+  };
+
+  // Update cart count and login status on component mount and when localStorage changes
+  useEffect(() => {
+    setCartCount(getCartCount());
+    checkLoginStatus();
+    
+    // Listen for storage changes (in case cart is updated in another tab)
+    const handleStorageChange = () => {
+      setCartCount(getCartCount());
+      checkLoginStatus();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check for changes periodically
+    const interval = setInterval(() => {
+      setCartCount(getCartCount());
+      checkLoginStatus();
+    }, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-emerald-50 text-slate-800">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-amber-50 text-slate-800">
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 backdrop-blur bg-white/70 border-b border-amber-100">
         <Container className="flex items-center justify-between py-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-emerald-600 grid place-items-center text-white font-bold">CB</div>
+            <div className="h-10 w-10 rounded-full bg-rose-600 grid place-items-center text-white font-bold">CB</div>
             <div>
               <div className="text-lg font-semibold tracking-tight">Chai Bisket LLC</div>
               <div className="text-[12px] text-slate-500">an Indian eatery</div>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a href="#menu" className="hover:text-emerald-700">Menu</a>
-            <a href="#story" className="hover:text-emerald-700">Our Story</a>
-            <a href="#location" className="hover:text-emerald-700">Location & Hours</a>
-            <a href="#gallery" className="hover:text-emerald-700">Gallery</a>
-            <a href="#contact" className="hover:text-emerald-700">Contact</a>
-            <a href="/profile" className="hover:text-emerald-700">Profile</a>
+            <a href="#menu" className="hover:text-rose-700">Menu</a>
+            <a href="#story" className="hover:text-rose-700">Our Story</a>
+            <a href="#location" className="hover:text-rose-700">Location & Hours</a>
+            <a href="#gallery" className="hover:text-rose-700">Gallery</a>
+            <a href="#contact" className="hover:text-rose-700">Contact</a>
+            <a href="/profile" className="hover:text-rose-700">Profile</a>
+            <a href="/cart" className="hover:text-rose-700 flex items-center gap-1">
+              <ShoppingCart className="h-4 w-4" />
+              View Cart {cartCount > 0 && `(${cartCount})`}
+            </a>
           </nav>
           <div className="flex items-center gap-3">
-            
-            <Button variant="outline" asChild className="border-emerald-600 text-emerald-700 hover:bg-emerald-50">
-              <a href="/login">Login</a>
-            </Button>
+            {isLoggedIn ? (
+              <>
+                <span className="text-sm text-slate-600 hidden md:block">Welcome, {userName}</span>
+                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
+                  <a href="/profile">Profile</a>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-rose-600 text-rose-700 hover:bg-rose-50"
+                  onClick={() => {
+                    localStorage.removeItem('user');
+                    setIsLoggedIn(false);
+                    setUserName('');
+                    window.location.href = '/';
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
+                  <a href="/signup">Sign Up</a>
+                </Button>
+                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
+                  <a href="/login">Login</a>
+                </Button>
+              </>
+            )}
           </div>
         </Container>
       </header>
@@ -189,14 +288,14 @@ export default function Page() {
       <Section id="home" className="relative overflow-hidden pt-20 md:pt-24 lg:pt-32 min-h-[90vh] flex items-center">
         {/* Animated Background Gradient */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-emerald-50 opacity-90"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-white to-amber-50 opacity-90"></div>
           <div 
             className="absolute inset-0 opacity-30"
             style={{
               backgroundImage: `
-                radial-gradient(at 10% 10%, #fde68a 0px, transparent 50%),
-                radial-gradient(at 90% 20%, #a7f3d0 0px, transparent 50%),
-                radial-gradient(at 30% 80%, #fecaca 0px, transparent 50%)
+                radial-gradient(at 10% 10%, #fbcfe8 0px, transparent 50%),
+                radial-gradient(at 90% 20%, #fde68a 0px, transparent 50%),
+                radial-gradient(at 30% 80%, #c7d2fe 0px, transparent 50%)
               `,
               animation: 'gradient 15s ease infinite',
               backgroundSize: '200% 200%',
@@ -230,10 +329,10 @@ export default function Page() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative z-10"
             >
-              <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-emerald-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm mb-6 border border-amber-100">
+              <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-rose-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm mb-6 border border-amber-100">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
                 </span>
                 Now serving in Cumming, GA
               </span>
@@ -241,14 +340,14 @@ export default function Page() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight">
                 Biryani is an{' '}
                 <span className="relative inline-block">
-                  <span className="relative z-10 text-emerald-700">emotion</span>
-                  <span className="absolute -bottom-1 left-0 w-full h-3 bg-emerald-100/70 -z-0 transform -rotate-1"></span>
+                  <span className="relative z-10 text-rose-700">emotion</span>
+                  <span className="absolute -bottom-1 left-0 w-full h-3 bg-rose-100/70 -z-0 transform -rotate-1"></span>
                 </span>
                 ,<br />
                 chai is for{' '}
                 <span className="relative inline-block">
-                  <span className="relative z-10 text-amber-700">mood</span>
-                  <span className="absolute -bottom-1 left-0 w-full h-3 bg-amber-100/70 -z-0 transform rotate-1"></span>
+                  <span className="relative z-10 text-violet-700">mood</span>
+                  <span className="absolute -bottom-1 left-0 w-full h-3 bg-violet-100/70 -z-0 transform rotate-1"></span>
                 </span>
                 .
               </h1>
@@ -259,7 +358,7 @@ export default function Page() {
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <Button 
-                  className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-6 px-8 text-base font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  className="bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white py-6 px-8 text-base font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                   size="lg"
                   asChild
                 >
@@ -270,7 +369,7 @@ export default function Page() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="border-amber-500 text-amber-700 hover:bg-amber-50 py-6 px-8 text-base font-medium rounded-xl transition-all duration-300 transform hover:-translate-y-1"
+                  className="border-violet-500 text-violet-700 hover:bg-violet-50 py-6 px-8 text-base font-medium rounded-xl transition-all duration-300 transform hover:-translate-y-1"
                   size="lg"
                   asChild
                 >
@@ -283,7 +382,7 @@ export default function Page() {
 
               <div className="mt-10 flex flex-wrap items-center gap-6 text-sm text-slate-600">
                 <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                  <div className="h-2 w-2 rounded-full bg-rose-500"></div>
                   <span>Freshly brewed chai</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
@@ -291,7 +390,7 @@ export default function Page() {
                   <span>Daily specials</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
-                  <div className="h-2 w-2 rounded-full bg-rose-500"></div>
+                  <div className="h-2 w-2 rounded-full bg-violet-500"></div>
                   <span>Vegetarian options</span>
                 </div>
               </div>
@@ -375,46 +474,9 @@ export default function Page() {
         </div>
       </div>
 
-      {/* MENU PREVIEW */}
-      <Section id="menu" className="bg-white/70">
-        <Container>
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Signature Menu</h2>
-            <p className="mt-3 text-slate-600">Street‑style favorites with a modern twist. 100% vibe, 100% flavor.</p>
-          </div>
-
-          <div className="mt-10 grid md:grid-cols-3 gap-6">
-            {[
-              { title: "Irani Chai", desc: "Slow‑brewed, aromatic, soul‑warming.", price: "$3.49", img: art.iraniChai },
-              { title: "Osmania Biscuits", desc: "Crisp, buttery, perfect with chai.", price: "$4.99", img: art.biscuits },
-              { title: "Hyderabadi Biryani", desc: "Long‑grain basmati, rich masala, royal aroma.", price: "$14.99", img: art.biryani },
-              { title: "Bun Maska", desc: "Pillow‑soft bun, lashings of butter.", price: "$5.99", img: art.bunMaska },
-              { title: "Vada Pav", desc: "Mumbai’s favorite — fiery & fun.", price: "$6.99", img: art.vadaPav },
-              { title: "Chicken 65", desc: "Crispy, tangy, dangerously addictive.", price: "$12.99", img: art.chicken65 },
-            ].map(({ title, desc, price, img }) => (
-              <Card key={title} className="group overflow-hidden rounded-3xl border-emerald-100 hover:border-emerald-200 hover:shadow-lg transition-all">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{title}</span>
-                    <span className="text-emerald-700 font-semibold">{price}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-600">{desc}</p>
-                  <div className="mt-4 aspect-[4/3] rounded-2xl overflow-hidden">
-                    <SafeImage src={img} alt={title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="mt-8 text-center">
-            <Button variant="outline" className="border-slate-300 hover:bg-white">
-              <a href="#menu">View Full Menu & Prices</a>
-            </Button>
-          </div>
-        </Container>
+      {/* MENU SECTION */}
+      <Section id="menu" className="py-16 bg-white/70">
+        <Menu />
       </Section>
 
       {/* STORY */}
@@ -494,7 +556,7 @@ export default function Page() {
                 <div className="relative aspect-[4/5] md:aspect-square rounded-3xl overflow-hidden shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10" />
                   <Image
-                    src="/images/chai-making.jpg"
+                    src="/images/iran chaai.png"
                     alt="Chai Bisket experience"
                     fill
                     className="object-cover"
@@ -591,7 +653,7 @@ export default function Page() {
         <Container>
           <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Moments & Mood</h2>
-            <p className="mt-3 text-slate-600">Swipe through the vibe — tag us on Instagram to get featured!</p>
+            <p className="mt-3 text-slate-600">Swipe through the vibe — tag us <span className="font-semibold text-rose-700">@chaibisket_eats</span> on Instagram to get featured!</p>
           </div>
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
             {art.gallery.map((src, i) => (
@@ -607,7 +669,7 @@ export default function Page() {
           <div className="text-center mt-6">
             <Button variant="outline" className="border-slate-300">
               <a href="https://instagram.com/chaibisket_eats" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2">
-                <Instagram className="mr-2 h-4 w-4"/>Follow on Instagram
+                <Instagram className="mr-2 h-4 w-4"/>Follow @chaibisket_eats
               </a>
             </Button>
           </div>
@@ -618,7 +680,7 @@ export default function Page() {
       <Section id="contact" className="bg-white">
         <Container>
           <div className="grid md:grid-cols-2 gap-8 items-start">
-            <Card className="rounded-3xl border-emerald-100">
+            <Card className="rounded-3xl border-rose-100">
               <CardHeader>
                 <CardTitle>Contact & Catering</CardTitle>
               </CardHeader>
@@ -627,16 +689,16 @@ export default function Page() {
                 <ContactForm />
               </CardContent>
             </Card>
-            <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
+            <div className="bg-gradient-to-br from-rose-600 to-rose-800 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
               <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full"/>
               <h3 className="text-2xl font-semibold">Hosting a Party?</h3>
-              <p className="mt-3 text-emerald-50">From chai counters to biryani bars — we cater birthdays, office events, and desi celebrations.</p>
-              <ul className="mt-4 space-y-2 text-emerald-100 text-sm">
-                <li>• Customizable menus</li>
-                <li>• Bulk chai, biscuits & snacks</li>
-                <li>• On‑site live stations</li>
+              <p className="mt-3 text-rose-50">From chai counters to biryani bars — we cater birthdays, office events, and desi celebrations.</p>
+              <ul className="mt-4 space-y-2 text-rose-100 text-sm">
+                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-white"></div> Customizable menus</li>
+                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-white"></div> Bulk chai, biscuits & snacks</li>
+                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-white"></div> On‑site live stations</li>
               </ul>
-              <Button variant="secondary" className="mt-6 text-emerald-900 bg-white hover:bg-emerald-50">
+              <Button variant="secondary" className="mt-6 text-rose-900 bg-white hover:bg-rose-50">
                 <a href="#contact">Get a Catering Quote</a>
               </Button>
             </div>
