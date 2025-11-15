@@ -8,9 +8,15 @@ const SHEETS_WEBHOOK_URL = process.env.SHEETS_WEBHOOK_URL || "";
 const FROM = process.env.CONTACT_FROM || "Chai Bisket <onboarding@resend.dev>";
 const SUBJECT = process.env.CONTACT_SUBJECT || "New Catering / Contact Message from Chai Bisket";
 
+// Add this at the beginning of the file
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const runtime = "nodejs";
+export const preferredRegion = "auto";
+
 export async function POST(req: Request) {
   try {
- const { name = "", email = "", phone = "", message = "", website = "" } = await req.json();
+    const { name = "", email = "", phone = "", message = "", website = "" } = await req.json();
 
     // 🛡️ Honeypot anti-spam check
     if (website) {

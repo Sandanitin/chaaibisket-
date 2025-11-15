@@ -624,3 +624,6 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+export const runtime = "nodejs";
+export const preferredRegion = "auto";

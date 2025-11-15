@@ -680,3 +680,6 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+export const runtime = "nodejs";
+export const preferredRegion = "auto";

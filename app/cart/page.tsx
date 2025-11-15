@@ -307,3 +307,6 @@ export default function CartPage() {
     </div>
   );
 }
+
+export const runtime = "nodejs";
+export const preferredRegion = "auto";

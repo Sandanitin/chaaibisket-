@@ -3,6 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverComponentsExternalPackages: ['resend']
+  },
+  // Add these configurations
+  images: {
+    unoptimized: true
   }
 };
 

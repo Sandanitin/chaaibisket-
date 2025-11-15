@@ -1,4 +1,3 @@
-
 import * as React from "react";
 
 export function Card({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -13,3 +12,9 @@ export function CardTitle({ className = "", ...props }: React.HTMLAttributes<HTM
 export function CardContent({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={`px-6 pb-6 ${className}`} {...props} />;
 }
+
+// Add this at the end of the file
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const runtime = "nodejs";
+export const preferredRegion = "auto";

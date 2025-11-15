@@ -215,3 +215,5 @@ export default function LoginPage() {
   );
 }
 
+export const runtime = "nodejs";
+export const preferredRegion = "auto";
