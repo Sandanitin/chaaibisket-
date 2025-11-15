@@ -15,26 +15,31 @@ const Navbar = ({ cartCount }: NavbarProps) => {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        
+        {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <Utensils className="h-6 w-6 text-rose-600" />
+          <Utensils className="h-6 w-6 text-emerald-600" />
           <span className="text-xl font-bold text-gray-900">Chai Bisket</span>
         </Link>
-        
+
+        {/* Cart Button */}
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative text-gray-700 hover:bg-rose-50 hover:text-rose-600"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative text-gray-700 hover:bg-emerald-50 hover:text-emerald-700"
             onClick={() => router.push('/cart')}
           >
             <ShoppingCart className="h-5 w-5" />
+
             {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-xs font-medium text-white">
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-xs font-medium text-white">
                 {cartCount > 9 ? '9+' : cartCount}
               </span>
             )}
           </Button>
         </div>
+
       </div>
     </nav>
   );
