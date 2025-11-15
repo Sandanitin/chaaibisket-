@@ -314,7 +314,7 @@ const Menu = () => {
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    priority={item.id <= 3}
+                    priority={isClient && item.id <= 3} // Only use priority on client side
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/70 to-transparent">
                     <div className="flex justify-between items-end">

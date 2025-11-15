@@ -167,6 +167,7 @@ export default function Page() {
   const [cartCount, setCartCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
+  const [isClient, setIsClient] = useState(false);
 
   // Get cart count from localStorage
   const getCartCount = () => {
@@ -206,6 +207,7 @@ export default function Page() {
 
   // Update cart count and login status on component mount and when localStorage changes
   useEffect(() => {
+    setIsClient(true);
     setCartCount(getCartCount());
     checkLoginStatus();
     
@@ -412,7 +414,7 @@ export default function Page() {
                   width={600}
                   height={800}
                   className="w-full h-auto object-cover"
-                  priority
+                  priority={isClient}
                 />
               </div>
               <div className="absolute -bottom-6 -right-6 z-0 w-64 h-64 bg-amber-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -563,7 +565,7 @@ export default function Page() {
                     alt="Chai Bisket experience"
                     fill
                     className="object-cover"
-                    priority
+                    priority={isClient}
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
                     <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-amber-100 shadow-lg">
