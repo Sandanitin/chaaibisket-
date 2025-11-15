@@ -15,6 +15,5 @@ export function CardContent({ className = "", ...props }: React.HTMLAttributes<H
 
 // Add this at the end of the file
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 export const runtime = "nodejs";
 export const preferredRegion = "auto";

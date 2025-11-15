@@ -6,7 +6,11 @@ export const metadata: Metadata = {
   description: "Biryani is an emotion, chai is for mood.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>{children}</body>
@@ -14,8 +18,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }
 
-// Add this at the end of the file
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 export const runtime = "nodejs";
 export const preferredRegion = "auto";

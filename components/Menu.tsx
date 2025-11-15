@@ -399,6 +399,5 @@ const Menu = () => {
 export default Menu;
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 export const runtime = "nodejs";
 export const preferredRegion = "auto";
