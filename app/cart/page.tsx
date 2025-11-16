@@ -71,10 +71,10 @@ const menuItems: MenuItem[] = [
   },
   {
     id: 6,
-    name: 'Chicken 65',
+    name: '',
     price: 12.99,
     description: 'Crispy, tangy, dangerously addictive.',
-    image: '/images/Chicken 65.jpg',
+    image: '/images/.jpg',
     category: 'Appetizers',
     availableTime: ['lunch', 'dinner']
   }

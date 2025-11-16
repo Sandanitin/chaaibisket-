@@ -253,90 +253,79 @@ const Menu = ({ onCartUpdate }: MenuProps) => {
           </p>
         </div>
 
-        {/* Mobile View Toggle */}
-        <div className="md:hidden flex justify-center mb-6">
-          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1 shadow-sm">
-            <button
-              onClick={() => setMobileView('grid')}
-              className={`px-4 py-2 text-sm font-medium rounded-md ${
-                mobileView === 'grid' 
-                  ? 'bg-rose-600 text-white shadow-sm' 
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Grid View
-            </button>
-            <button
-              onClick={() => setMobileView('list')}
-              className={`px-4 py-2 text-sm font-medium rounded-md ${
-                mobileView === 'list' 
-                  ? 'bg-rose-600 text-white shadow-sm' 
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              List View
-            </button>
-          </div>
-        </div>
 
         {/* Menu Navigation */}
         <div className="mb-12 sm:mb-16">
-          <div className={`flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 transition-opacity duration-300 ${showAllItems ? 'opacity-50' : 'opacity-100'}`}>
-            {menuTimings.map((menu) => (!showAllItems && (
-              <button
-                key={menu.id}
-                onClick={() => setActiveMenu(menu.id)}
-                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-full text-sm font-medium transition-all duration-200 flex flex-col items-center justify-center min-w-[120px] sm:min-w-[140px] ${
-                  activeMenu === menu.id
-                    ? 'bg-rose-600 text-white shadow-lg shadow-rose-100'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                }`}
-              >
-                <span className="font-semibold text-base">{menu.name}</span>
-                <span className="block text-xs font-normal opacity-80 mt-1">
-                  {menu.time}
-                </span>
-              </button>
-            )))}
+          {/* Catering CTA Button */}
+          <div className="flex justify-center mb-6 sm:mb-8">
+            <a 
+              href="#contact"
+              className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium text-white bg-gradient-to-r from-amber-600 to-amber-500 rounded-lg shadow-md hover:from-amber-700 hover:to-amber-600 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+            >
+              🎉 Get a Catering Quote
+            </a>
+          </div>
+          <div className={`mb-6 transition-opacity duration-300 ${showAllItems ? 'opacity-50' : 'opacity-100'}`}>
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+              {menuTimings.map((menu) => (!showAllItems && (
+                <div key={menu.id} className="flex-shrink-0">
+                  <button
+                    onClick={() => setActiveMenu(menu.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex flex-col items-center justify-center min-w-[120px] h-16 ${
+                      activeMenu === menu.id
+                        ? 'bg-rose-600 text-white shadow-lg shadow-rose-100'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    <span className="font-semibold text-xs">{menu.name}</span>
+                    <span className="block text-[10px] font-normal opacity-80 mt-0.5 whitespace-nowrap">
+                      {menu.time}
+                    </span>
+                  </button>
+                </div>
+              )))}
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8">
-            <button
-              onClick={() => {
-                setShowAllItems(!showAllItems);
-                // Reset to 'All' category when toggling showAllItems
-                if (!showAllItems) setActiveCategory('All');
-              }}
-              className={`px-4 py-1.5 sm:px-5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
-                showAllItems
-                  ? 'bg-emerald-600 text-white shadow-md hover:bg-emerald-700'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-              }`}
-            >
-              {showAllItems ? (
-                <React.Fragment>
-                  <span>Viewing All Items</span>
-                  <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded-full">All Day</span>
-                </React.Fragment>
-              ) : 'View All Menu Items'}
-            </button>
-            
-            {categories.filter(cat => cat !== 'All').map((category) => (
+          <div className="menu-categories-container mb-6 sm:mb-8">
+            <div className="menu-categories-buttons">
               <button
-                key={category}
                 onClick={() => {
-                  setActiveCategory(category);
-                  setShowAllItems(false);
+                  setShowAllItems(!showAllItems);
+                  // Reset to 'All' category when toggling showAllItems
+                  if (!showAllItems) setActiveCategory('All');
                 }}
-                className={`px-4 py-1.5 sm:px-5 rounded-full text-sm font-medium transition-all duration-200 ${
-                  activeCategory === category && !showAllItems
-                    ? 'bg-rose-600 text-white shadow-md'
+                className={`rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1 ${
+                  showAllItems
+                    ? 'bg-emerald-600 text-white shadow-md hover:bg-emerald-700'
                     : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
                 }`}
               >
-                {category}
+                {showAllItems ? (
+                  <React.Fragment>
+                    <span className="text-xs">Viewing All Items</span>
+                    <span className="text-[8px] bg-white/20 px-1.5 py-0.5 rounded-full whitespace-nowrap">All Day</span>
+                  </React.Fragment>
+                ) : <span className="text-xs">View All Menu Items</span>}
               </button>
-            ))}
+              
+              {categories.filter(cat => cat !== 'All').map((category) => (
+                <button
+                  key={category}
+                  onClick={() => {
+                    setActiveCategory(category);
+                    setShowAllItems(false);
+                  }}
+                  className={`rounded-full text-sm font-medium transition-all duration-200 ${
+                    activeCategory === category && !showAllItems
+                      ? 'bg-rose-600 text-white shadow-md'
+                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                  }`}
+                >
+                  <span className="text-xs px-2 py-1">{category}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

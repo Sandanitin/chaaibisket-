@@ -422,16 +422,26 @@ export default function Page() {
 
       {/* MARQUEE */}
       <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white via-transparent to-white"/>
-        <div className="whitespace-nowrap animate-[marquee_30s_linear_infinite] py-3 text-sm font-medium text-emerald-800">
-          <span className="mx-8">Irani Chai</span>
-          <span className="mx-8">Osmania Biscuits</span>
-          <span className="mx-8">Hyderabadi Biryani</span>
-          <span className="mx-8">Samosa & Cutlets</span>
-          <span className="mx-8">Bun Maska</span>
-          <span className="mx-8">Vada Pav</span>
-          <span className="mx-8">Chicken 65</span>
-          <span className="mx-8">Kulfi & Falooda</span>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white via-transparent to-white z-10"/>
+        <div className="whitespace-nowrap animate-[marquee_20s_linear_infinite] py-3 text-sm font-medium text-emerald-800 md:animate-[marquee_30s_linear_infinite]">
+          <span className="mx-4 md:mx-8">Irani Chai</span>
+          <span className="mx-4 md:mx-8">Osmania Biscuits</span>
+          <span className="mx-4 md:mx-8">Hyderabadi Biryani</span>
+          <span className="mx-4 md:mx-8">Samosa & Cutlets</span>
+          <span className="mx-4 md:mx-8">Bun Maska</span>
+          <span className="mx-4 md:mx-8">Vada Pav</span>
+          <span className="mx-4 md:mx-8">Chicken 65</span>
+          <span className="mx-4 md:mx-8">Kulfi & Falooda</span>
+          
+          {/* Duplicate items for seamless loop */}
+          <span className="mx-4 md:mx-8">Irani Chai</span>
+          <span className="mx-4 md:mx-8">Osmania Biscuits</span>
+          <span className="mx-4 md:mx-8">Hyderabadi Biryani</span>
+          <span className="mx-4 md:mx-8">Samosa & Cutlets</span>
+          <span className="mx-4 md:mx-8">Bun Maska</span>
+          <span className="mx-4 md:mx-8">Vada Pav</span>
+          <span className="mx-4 md:mx-8">Chicken 65</span>
+          <span className="mx-4 md:mx-8">Kulfi & Falooda</span>
         </div>
       </div>
 
@@ -579,13 +589,19 @@ export default function Page() {
                     <a href="tel:+17705550123" className="hover:underline">(770) 555-0123</a>
                   </div>
                 </div>
-                <div className="pt-4 flex gap-3">
-                  <Button className="bg-rose-700 hover:bg-rose-800">
-                    <a href="#menu">View Menu</a>
-                  </Button>
-                  <Button variant="outline" className="border-rose-200 hover:bg-rose-50">
-                    <a href="#contact">Catering Inquiries</a>
-                  </Button>
+                <div className="pt-6 flex flex-wrap gap-4 sm:gap-5 justify-center sm:justify-start">
+                  <a 
+                    href="#menu" 
+                    className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium text-white bg-gradient-to-r from-rose-600 to-rose-500 rounded-lg shadow-md hover:from-rose-700 hover:to-rose-600 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+                  >
+                    View Our Menu
+                  </a>
+                  <a 
+                    href="#contact" 
+                    className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium text-rose-700 bg-white border-2 border-rose-200 rounded-lg shadow-sm hover:bg-rose-50 hover:border-rose-300 hover:shadow-md transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+                  >
+                    Catering Inquiries
+                  </a>
                 </div>
               </CardContent>
             </Card>
@@ -705,7 +721,10 @@ export default function Page() {
 
       {/* KEYFRAMES */}
       <style>{`
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes marquee { 
+          0% { transform: translateX(0); } 
+          100% { transform: translateX(-50%); } 
+        }
       `}</style>
     </div>
   );

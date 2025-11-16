@@ -49,6 +49,29 @@ body {
     padding-top: 3rem;
     padding-bottom: 3rem;
   }
+  
+  /* Prevent horizontal scrolling for menu navigation */
+  .menu-navigation {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  .menu-navigation::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+  
+  .menu-navigation-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.25rem;
+  }
+  
+  .menu-navigation-buttons > * {
+    flex: 0 0 auto;
+    min-width: 80px;
+  }
 }
 
 /* Improve touch targets for mobile */
@@ -113,7 +136,59 @@ html, body {
   }
   
   /* Keep important animations */
-  .animate-bounce, .animate-pulse {
+  .animate-bounce, .animate-pulse, .animate-\[marquee_30s_linear_infinite\] {
     animation-duration: 1s !important;
+  }
+}
+
+/* Menu specific mobile improvements */
+@media (max-width: 768px) {
+  .menu-timings-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0.5rem 0;
+  }
+  
+  .menu-timings-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .menu-timings-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    min-width: max-content;
+  }
+  
+  .menu-timings-buttons > button {
+    flex: 0 0 auto;
+    min-width: 90px;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .menu-categories-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0.5rem 0;
+  }
+  
+  .menu-categories-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .menu-categories-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    min-width: max-content;
+  }
+  
+  .menu-categories-buttons > button {
+    flex: 0 0 auto;
+    padding: 0.5rem 0.75rem;
   }
 }
