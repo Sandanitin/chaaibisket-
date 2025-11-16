@@ -654,8 +654,21 @@ export default function Page() {
         </Container>
       </Section>
 
+      {/* Floating Catering Button - Mobile Only */}
+      <div className="fixed bottom-6 right-6 z-50 lg:hidden">
+        <a 
+          href="#contact"
+          className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-rose-600 to-rose-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          aria-label="Get a Catering Quote"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </a>
+      </div>
+
       {/* CONTACT / CATERING */}
-      <Section id="contact" className="bg-white">
+      <Section id="contact" className="bg-white pt-20 lg:pt-24">
         <Container>
           <div className="grid md:grid-cols-2 gap-8 items-start">
             <Card className="rounded-3xl border-rose-100">
@@ -676,9 +689,12 @@ export default function Page() {
                 <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-white"></div> Bulk chai, biscuits & snacks</li>
                 <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-white"></div> On‑site live stations</li>
               </ul>
-              <Button variant="secondary" className="mt-6 text-rose-900 bg-white hover:bg-rose-50">
-                <a href="#contact">Get a Catering Quote</a>
-              </Button>
+              <a 
+                href="#contact"
+                className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-3.5 text-sm sm:text-base font-semibold text-center text-rose-100 bg-gradient-to-r from-rose-600 to-rose-800 hover:from-rose-700 hover:to-rose-900 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-95 w-full sm:w-auto"
+              >
+                Get a Catering Quote
+              </a>
             </div>
           </div>
         </Container>
