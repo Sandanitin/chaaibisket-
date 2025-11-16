@@ -256,15 +256,6 @@ const Menu = ({ onCartUpdate }: MenuProps) => {
 
         {/* Menu Navigation */}
         <div className="mb-12 sm:mb-16">
-          {/* Catering CTA Button */}
-          <div className="flex justify-center mb-6 sm:mb-8">
-            <a 
-              href="#contact"
-              className="inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-medium text-white bg-gradient-to-r from-amber-600 to-amber-500 rounded-lg shadow-md hover:from-amber-700 hover:to-amber-600 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-            >
-              🎉 Get a Catering Quote
-            </a>
-          </div>
           <div className={`mb-6 transition-opacity duration-300 ${showAllItems ? 'opacity-50' : 'opacity-100'}`}>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {menuTimings.map((menu) => (!showAllItems && (
@@ -287,26 +278,27 @@ const Menu = ({ onCartUpdate }: MenuProps) => {
             </div>
           </div>
 
-          <div className="menu-categories-container mb-6 sm:mb-8">
-            <div className="menu-categories-buttons">
+          <div className="mb-6 sm:mb-8 w-full">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 px-2">
               <button
                 onClick={() => {
                   setShowAllItems(!showAllItems);
-                  // Reset to 'All' category when toggling showAllItems
                   if (!showAllItems) setActiveCategory('All');
                 }}
-                className={`rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1 ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap ${
                   showAllItems
                     ? 'bg-emerald-600 text-white shadow-md hover:bg-emerald-700'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
                 }`}
               >
                 {showAllItems ? (
-                  <React.Fragment>
-                    <span className="text-xs">Viewing All Items</span>
-                    <span className="text-[8px] bg-white/20 px-1.5 py-0.5 rounded-full whitespace-nowrap">All Day</span>
-                  </React.Fragment>
-                ) : <span className="text-xs">View All Menu Items</span>}
+                  <>
+                    <span className="text-xs sm:text-sm">Viewing All Items</span>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full whitespace-nowrap">All Day</span>
+                  </>
+                ) : (
+                  <span className="text-xs sm:text-sm">View All Menu Items</span>
+                )}
               </button>
               
               {categories.filter(cat => cat !== 'All').map((category) => (
@@ -316,13 +308,13 @@ const Menu = ({ onCartUpdate }: MenuProps) => {
                     setActiveCategory(category);
                     setShowAllItems(false);
                   }}
-                  className={`rounded-full text-sm font-medium transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                     activeCategory === category && !showAllItems
-                      ? 'bg-rose-600 text-white shadow-md'
-                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                      ? 'bg-rose-600 text-white shadow-md hover:bg-rose-700'
+                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <span className="text-xs px-2 py-1">{category}</span>
+                  <span className="text-xs sm:text-sm">{category}</span>
                 </button>
               ))}
             </div>
