@@ -358,23 +358,24 @@ export default function Page() {
             </motion.div>
 
             <motion.div 
-              className="relative hidden lg:block"
+              className="relative mt-8 sm:mt-10 lg:mt-0 px-4 sm:px-0"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
             >
-              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl transform lg:rotate-2 hover:rotate-0 transition-transform duration-500 max-w-xs sm:max-w-sm md:max-w-md mx-auto lg:mx-0 lg:max-w-none w-full">
                 <Image
                   src="/images/herosection.jpg"
                   alt="Chai Bisket Hero"
-                  width={600}
-                  height={800}
+                  width={500}
+                  height={700}
                   className="w-full h-auto object-cover"
-                  priority={isClient}
+                  priority={true}
+                  sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 40vw"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-6 z-0 w-64 h-64 bg-amber-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-              <div className="absolute -top-6 -left-6 z-0 w-64 h-64 bg-emerald-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+              <div className="hidden lg:block absolute -bottom-6 -right-6 z-0 w-64 h-64 bg-amber-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+              <div className="hidden lg:block absolute -top-6 -left-6 z-0 w-64 h-64 bg-emerald-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
             </motion.div>
           </div>
         </Container>
