@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Clock, Phone, Instagram, Utensils, Leaf, Coffee, Sandwich, Sprout, ShoppingCart } from "lucide-react";
 import Menu from "@/components/Menu";
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
 
 /**
  * Chai Bisket — Single‑file Landing Page
@@ -167,6 +168,7 @@ export default function Page() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
   const [isClient, setIsClient] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Get cart count from localStorage
   const getCartCount = () => {
@@ -218,6 +220,13 @@ export default function Page() {
     
     window.addEventListener('storage', handleStorageChange);
     
+    // Listen for cart updates from Menu component
+    const handleCartUpdate = () => {
+      setCartCount(getCartCount());
+    };
+    
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    
     // Also check for changes periodically
     const interval = setInterval(() => {
       setCartCount(getCartCount());
@@ -226,70 +235,18 @@ export default function Page() {
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
       clearInterval(interval);
     };
   }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-amber-50 text-slate-800">
-      {/* NAVBAR */}
-      <header className="sticky top-0 z-50 backdrop-blur bg-white/70 border-b border-amber-100">
-        <Container className="flex items-center justify-between py-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-rose-600 grid place-items-center text-white font-bold">CB</div>
-            <div>
-              <div className="text-lg font-semibold tracking-tight">Chai Bisket LLC</div>
-              <div className="text-[12px] text-slate-500">an Indian eatery</div>
-            </div>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a href="#menu" className="hover:text-rose-700">Menu</a>
-            <a href="#story" className="hover:text-rose-700">Our Story</a>
-            <a href="#location" className="hover:text-rose-700">Location & Hours</a>
-            <a href="#gallery" className="hover:text-rose-700">Gallery</a>
-            <a href="#contact" className="hover:text-rose-700">Contact</a>
-            <a href="/profile" className="hover:text-rose-700">Profile</a>
-            <a href="/cart" className="hover:text-rose-700 flex items-center gap-1">
-              <ShoppingCart className="h-4 w-4" />
-              View Cart {cartCount > 0 && `(${cartCount})`}
-            </a>
-          </nav>
-          <div className="flex items-center gap-3">
-            {isLoggedIn ? (
-              <>
-                <span className="text-sm text-slate-600 hidden md:block">Welcome, {userName}</span>
-                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
-                  <a href="/profile">Profile</a>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="border-rose-600 text-rose-700 hover:bg-rose-50"
-                  onClick={() => {
-                    localStorage.removeItem('user');
-                    setIsLoggedIn(false);
-                    setUserName('');
-                    window.location.href = '/';
-                  }}
-                >
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
-                  <a href="/signup">Sign Up</a>
-                </Button>
-                <Button variant="outline" asChild className="border-rose-600 text-rose-700 hover:bg-rose-50">
-                  <a href="/login">Login</a>
-                </Button>
-              </>
-            )}
-          </div>
-        </Container>
-      </header>
-
+      {/* Use the Navbar component */}
+      <Navbar cartCount={cartCount} />
+      
       {/* HERO */}
-      <Section id="home" className="relative overflow-hidden pt-20 md:pt-24 lg:pt-32 min-h-[90vh] flex items-center">
+      <Section id="home" className="relative overflow-hidden pt-16 md:pt-24 lg:pt-32 min-h-[85vh] flex items-center">
         {/* Animated Background Gradient */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-white to-amber-50 opacity-90"></div>
@@ -309,13 +266,13 @@ export default function Page() {
 
         {/* Decorative Elements */}
         <div className="absolute inset-0 opacity-10">
-          {[...Array(20)].map((_, i) => (
+          {[...Array(15)].map((_, i) => (
             <div
               key={i}
               className="absolute rounded-full bg-amber-400"
               style={{
-                width: Math.random() * 10 + 5 + 'px',
-                height: Math.random() * 10 + 5 + 'px',
+                width: Math.random() * 8 + 4 + 'px',
+                height: Math.random() * 8 + 4 + 'px',
                 left: Math.random() * 100 + '%',
                 top: Math.random() * 100 + '%',
                 animation: `float ${Math.random() * 10 + 10}s linear infinite`,
@@ -326,14 +283,14 @@ export default function Page() {
         </div>
 
         <Container>
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative z-10"
             >
-              <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-rose-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm mb-6 border border-amber-100">
+              <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-rose-800 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm mb-5 sm:mb-6 border border-amber-100">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
@@ -341,7 +298,7 @@ export default function Page() {
                 Now serving in Cumming, GA
               </span>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight">
                 Biryani is an{' '}
                 <span className="relative inline-block">
                   <span className="relative z-10 text-rose-700">emotion</span>
@@ -356,44 +313,44 @@ export default function Page() {
                 .
               </h1>
 
-              <p className="mt-6 text-lg md:text-xl text-slate-700 max-w-xl leading-relaxed">
+              <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-slate-700 max-w-xl leading-relaxed">
                 From crispy samosas to soul-warming Irani chai, we bring the authentic flavors of India's street food scene to your table. Every bite tells a story of tradition and taste.
               </p>
 
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button 
-                  className="bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white py-6 px-8 text-base font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  className="bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white py-5 sm:py-6 px-6 sm:px-8 text-base font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                   size="lg"
                   asChild
                 >
-                  <a href="#menu" className="flex items-center gap-2">
+                  <a href="#menu" className="flex items-center justify-center sm:justify-start gap-2">
                     <Utensils className="h-5 w-5" />
                     Explore Our Menu
                   </a>
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="border-violet-500 text-violet-700 hover:bg-violet-50 py-6 px-8 text-base font-medium rounded-xl transition-all duration-300 transform hover:-translate-y-1"
+                  className="border-violet-500 text-violet-700 hover:bg-violet-50 py-5 sm:py-6 px-6 sm:px-8 text-base font-medium rounded-xl transition-all duration-300 transform hover:-translate-y-1"
                   size="lg"
                   asChild
                 >
-                  <a href="#contact" className="flex items-center gap-2">
+                  <a href="#contact" className="flex items-center justify-center sm:justify-start gap-2">
                     <Phone className="h-5 w-5" />
                     Order Now
                   </a>
                 </Button>
               </div>
 
-              <div className="mt-10 flex flex-wrap items-center gap-6 text-sm text-slate-600">
-                <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
+              <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-slate-600">
+                <div className="flex items-center gap-2 bg-white/60 px-3 sm:px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
                   <div className="h-2 w-2 rounded-full bg-rose-500"></div>
                   <span>Freshly brewed chai</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
+                <div className="flex items-center gap-2 bg-white/60 px-3 sm:px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
                   <div className="h-2 w-2 rounded-full bg-amber-500"></div>
                   <span>Daily specials</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
+                <div className="flex items-center gap-2 bg-white/60 px-3 sm:px-4 py-2 rounded-full backdrop-blur-sm border border-amber-100">
                   <div className="h-2 w-2 rounded-full bg-violet-500"></div>
                   <span>Vegetarian options</span>
                 </div>
@@ -408,8 +365,8 @@ export default function Page() {
             >
               <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <Image
-                  src="/images/iran chaai.png"
-                  alt="Irani Chai"
+                  src="/images/herosection.jpg"
+                  alt="Chai Bisket Hero"
                   width={600}
                   height={800}
                   className="w-full h-auto object-cover"
@@ -422,8 +379,8 @@ export default function Page() {
           </div>
         </Container>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        {/* Scroll indicator - hidden on mobile */}
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden sm:block">
           <div className="w-6 h-10 border-2 border-slate-400 rounded-full flex justify-center p-1">
             <div className="w-1 h-2 bg-slate-400 rounded-full animate-scroll"></div>
           </div>
@@ -480,7 +437,7 @@ export default function Page() {
 
       {/* MENU SECTION */}
       <Section id="menu" className="py-16 bg-white/70">
-        <Menu />
+        <Menu onCartUpdate={() => setCartCount(getCartCount())} />
       </Section>
 
       {/* STORY */}
@@ -659,7 +616,7 @@ export default function Page() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Moments & Mood</h2>
             <p className="mt-3 text-slate-600">Swipe through the vibe — tag us <span className="font-semibold text-rose-700">@chaibisket_eats</span> on Instagram to get featured!</p>
           </div>
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {art.gallery.map((src, i) => (
               <div key={i} className="aspect-square overflow-hidden rounded-2xl">
                 <SafeImage

@@ -35,9 +35,89 @@ export default function SignupPage() {
     general: "",
   });
 
-  const validateEmail = (email: string) => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return re.test(email);
+  type FormErrors = typeof errors;
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors: FormErrors = {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      general: ""
+    };
+    
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+      valid = false;
+    }
+    
+    // Email validation
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+      valid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+      valid = false;
+    }
+    
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+      valid = false;
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+      valid = false;
+    }
+    
+    // Confirm password validation
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+      valid = false;
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+      valid = false;
+    }
+    
+    // Address validation
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
+      valid = false;
+    }
+    
+    // City validation
+    if (!formData.city.trim()) {
+      newErrors.city = "City is required";
+      valid = false;
+    }
+    
+    // State validation
+    if (!formData.state.trim()) {
+      newErrors.state = "State is required";
+      valid = false;
+    }
+    
+    // ZIP code validation - trim whitespace before validation
+    const trimmedZipCode = formData.zipCode.trim();
+    if (!trimmedZipCode) {
+      newErrors.zipCode = "ZIP code is required";
+      valid = false;
+    } else if (!/^[0-9]{5}(?:-[0-9]{4})?$/.test(trimmedZipCode)) {
+      newErrors.zipCode = "Please enter a valid ZIP code (e.g., 12345 or 12345-6789)";
+      valid = false;
+    }
+    
+    if (!valid) {
+      setErrors(newErrors);
+      return false;
+    }
+    
+    return true;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,77 +133,23 @@ export default function SignupPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
-    let valid = true;
-    const newErrors = { 
-      name: "", 
-      email: "", 
-      password: "", 
-      confirmPassword: "",
-      address: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      general: "",
+    // Trim whitespace from all fields before validation
+    const trimmedFormData = {
+      ...formData,
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      address: formData.address.trim(),
+      city: formData.city.trim(),
+      state: formData.state.trim(),
+      zipCode: formData.zipCode.trim()
     };
     
-    if (!formData.name) {
-      newErrors.name = "Name is required";
-      valid = false;
-    }
+    setFormData(trimmedFormData);
     
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-      valid = false;
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-      valid = false;
-    }
-    
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-      valid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-      valid = false;
-    }
-    
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-      valid = false;
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-      valid = false;
-    }
-    
-    if (!formData.address) {
-      newErrors.address = "Address is required";
-      valid = false;
-    }
-    
-    if (!formData.city) {
-      newErrors.city = "City is required";
-      valid = false;
-    }
-    
-    if (!formData.state) {
-      newErrors.state = "State is required";
-      valid = false;
-    }
-    
-    if (!formData.zipCode) {
-      newErrors.zipCode = "ZIP code is required";
-      valid = false;
-    } else if (!/^[0-9]{5}(?:-[0-9]{4})?$/.test(formData.zipCode)) {
-      newErrors.zipCode = "Please enter a valid ZIP code";
-      valid = false;
-    }
-    
-    if (!valid) {
-      setErrors(newErrors);
+    if (!validateForm()) {
       return;
     }
     
@@ -134,10 +160,10 @@ export default function SignupPage() {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
       
       // Check if user already exists
-      const existingUser = users.find((u: any) => u.email === formData.email);
+      const existingUser = users.find((u: any) => u.email === trimmedFormData.email);
       if (existingUser) {
         setErrors({
-          ...newErrors,
+          ...errors,
           email: "An account with this email already exists. Please sign in instead."
         });
         setIsLoading(false);
@@ -147,14 +173,14 @@ export default function SignupPage() {
       // Create new user
       const newUser = {
         id: Date.now().toString(),
-        name: formData.name,
-        email: formData.email,
-        password: formData.password, // In production, this should be hashed
+        name: trimmedFormData.name,
+        email: trimmedFormData.email,
+        password: trimmedFormData.password, // In production, this should be hashed
         phone: '',
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zipCode: formData.zipCode,
+        address: trimmedFormData.address,
+        city: trimmedFormData.city,
+        state: trimmedFormData.state,
+        zipCode: trimmedFormData.zipCode,
         joinDate: new Date().toLocaleDateString(),
         loyaltyPoints: 0,
       };
@@ -182,7 +208,7 @@ export default function SignupPage() {
       router.push("/profile"); // Redirect to profile page after signup
     } catch (error) {
       setErrors({
-        ...newErrors,
+        ...errors,
         general: "An error occurred. Please try again."
       });
       setIsLoading(false);
@@ -190,25 +216,25 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-emerald-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md rounded-3xl shadow-xl border-emerald-100">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-amber-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md rounded-3xl shadow-xl border-rose-100">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="h-16 w-16 rounded-full bg-emerald-600 grid place-items-center text-white font-bold text-2xl">CB</div>
+            <div className="h-16 w-16 rounded-full bg-rose-600 grid place-items-center text-white font-bold text-2xl">CB</div>
           </div>
-          <CardTitle className="text-2xl">Create Account</CardTitle>
+          <CardTitle className="text-2xl text-rose-800">Create Account</CardTitle>
           <p className="text-slate-600 text-sm">Sign up for a Chai Bisket account</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {errors.general && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+              <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-sm">
                 {errors.general}
               </div>
             )}
             
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">Full Name</label>
+              <label htmlFor="name" className="text-sm font-medium text-rose-700">Full Name</label>
               <input
                 id="name"
                 name="name"
@@ -216,18 +242,18 @@ export default function SignupPage() {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.name ? "border-red-500" : "border-slate-200"}`}
+                className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300 ${errors.name ? "border-rose-500" : "border-slate-200"}`}
                 placeholder="Enter your full name"
                 aria-invalid={!!errors.name}
                 aria-describedby={errors.name ? "name-error" : undefined}
               />
               {errors.name && (
-                <p id="name-error" className="text-sm text-red-600">{errors.name}</p>
+                <p id="name-error" className="text-sm text-rose-600">{errors.name}</p>
               )}
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">Email</label>
+              <label htmlFor="email" className="text-sm font-medium text-rose-700">Email</label>
               <input
                 id="email"
                 name="email"
@@ -235,18 +261,18 @@ export default function SignupPage() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.email ? "border-red-500" : "border-slate-200"}`}
+                className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300 ${errors.email ? "border-rose-500" : "border-slate-200"}`}
                 placeholder="your@email.com"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "email-error" : undefined}
               />
               {errors.email && (
-                <p id="email-error" className="text-sm text-red-600">{errors.email}</p>
+                <p id="email-error" className="text-sm text-rose-600">{errors.email}</p>
               )}
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">Password</label>
+              <label htmlFor="password" className="text-sm font-medium text-rose-700">Password</label>
               <div className="relative">
                 <input
                   id="password"
@@ -255,7 +281,7 @@ export default function SignupPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.password ? "border-red-500" : "border-slate-200"}`}
+                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300 ${errors.password ? "border-rose-500" : "border-slate-200"}`}
                   placeholder="Create a password"
                   aria-invalid={!!errors.password}
                   aria-describedby={errors.password ? "password-error" : undefined}
@@ -274,12 +300,12 @@ export default function SignupPage() {
                 </button>
               </div>
               {errors.password && (
-                <p id="password-error" className="text-sm text-red-600">{errors.password}</p>
+                <p id="password-error" className="text-sm text-rose-600">{errors.password}</p>
               )}
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="text-sm font-medium text-rose-700">Confirm Password</label>
               <div className="relative">
                 <input
                   id="confirmPassword"
@@ -288,7 +314,7 @@ export default function SignupPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.confirmPassword ? "border-red-500" : "border-slate-200"}`}
+                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300 ${errors.confirmPassword ? "border-rose-500" : "border-slate-200"}`}
                   placeholder="Confirm your password"
                   aria-invalid={!!errors.confirmPassword}
                   aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
@@ -307,7 +333,7 @@ export default function SignupPage() {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p id="confirm-password-error" className="text-sm text-red-600">{errors.confirmPassword}</p>
+                <p id="confirm-password-error" className="text-sm text-rose-600">{errors.confirmPassword}</p>
               )}
             </div>
             
@@ -315,7 +341,7 @@ export default function SignupPage() {
               <h3 className="text-lg font-medium text-slate-800 mb-3">Delivery Address</h3>
               
               <div className="space-y-2">
-                <label htmlFor="address" className="text-sm font-medium">Street Address</label>
+                <label htmlFor="address" className="text-sm font-medium text-rose-700">Street Address</label>
                 <input
                   id="address"
                   name="address"
@@ -323,19 +349,19 @@ export default function SignupPage() {
                   value={formData.address}
                   onChange={handleChange}
                   required
-                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.address ? "border-red-500" : "border-slate-200"}`}
+                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300 ${errors.address ? "border-rose-500" : "border-slate-200"}`}
                   placeholder="123 Main St"
                   aria-invalid={!!errors.address}
                   aria-describedby={errors.address ? "address-error" : undefined}
                 />
                 {errors.address && (
-                  <p id="address-error" className="text-sm text-red-600">{errors.address}</p>
+                  <p id="address-error" className="text-sm text-rose-600">{errors.address}</p>
                 )}
               </div>
               
               <div className="grid grid-cols-2 gap-4 mt-3">
                 <div className="space-y-2">
-                  <label htmlFor="city" className="text-sm font-medium">City</label>
+                  <label htmlFor="city" className="text-sm font-medium text-rose-700">City</label>
                   <input
                     id="city"
                     name="city"
@@ -343,18 +369,18 @@ export default function SignupPage() {
                     value={formData.city}
                     onChange={handleChange}
                     required
-                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.city ? "border-red-500" : "border-slate-200"}`}
+                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300 ${errors.city ? "border-rose-500" : "border-slate-200"}`}
                     placeholder="City"
                     aria-invalid={!!errors.city}
                     aria-describedby={errors.city ? "city-error" : undefined}
                   />
                   {errors.city && (
-                    <p id="city-error" className="text-sm text-red-600">{errors.city}</p>
+                    <p id="city-error" className="text-sm text-rose-600">{errors.city}</p>
                   )}
                 </div>
                 
                 <div className="space-y-2">
-                  <label htmlFor="state" className="text-sm font-medium">State</label>
+                  <label htmlFor="state" className="text-sm font-medium text-rose-700">State</label>
                   <input
                     id="state"
                     name="state"
@@ -362,19 +388,19 @@ export default function SignupPage() {
                     value={formData.state}
                     onChange={handleChange}
                     required
-                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.state ? "border-red-500" : "border-slate-200"}`}
+                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300 ${errors.state ? "border-rose-500" : "border-slate-200"}`}
                     placeholder="State"
                     aria-invalid={!!errors.state}
                     aria-describedby={errors.state ? "state-error" : undefined}
                   />
                   {errors.state && (
-                    <p id="state-error" className="text-sm text-red-600">{errors.state}</p>
+                    <p id="state-error" className="text-sm text-rose-600">{errors.state}</p>
                   )}
                 </div>
               </div>
               
               <div className="space-y-2 mt-3">
-                <label htmlFor="zipCode" className="text-sm font-medium">ZIP Code</label>
+                <label htmlFor="zipCode" className="text-sm font-medium text-rose-700">ZIP Code</label>
                 <input
                   id="zipCode"
                   name="zipCode"
@@ -382,38 +408,45 @@ export default function SignupPage() {
                   value={formData.zipCode}
                   onChange={handleChange}
                   required
-                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${errors.zipCode ? "border-red-500" : "border-slate-200"}`}
+                  className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300 ${errors.zipCode ? "border-rose-500" : "border-slate-200"}`}
                   placeholder="12345"
                   aria-invalid={!!errors.zipCode}
                   aria-describedby={errors.zipCode ? "zipCode-error" : undefined}
                 />
                 {errors.zipCode && (
-                  <p id="zipCode-error" className="text-sm text-red-600">{errors.zipCode}</p>
+                  <p id="zipCode-error" className="text-sm text-rose-600">{errors.zipCode}</p>
                 )}
               </div>
             </div>
             
             <Button 
               type="submit" 
-              className="w-full bg-emerald-700 hover:bg-emerald-800 mt-6"
+              className="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-medium py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 mt-6"
               disabled={isLoading}
             >
               {isLoading ? "Creating Account..." : "Sign Up"}
             </Button>
           </form>
           
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-6 text-center">
             <span className="text-slate-600">Already have an account? </span>
-            <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-medium">
+            <Link 
+              href="/login" 
+              className="text-rose-600 hover:text-rose-700 font-medium text-lg underline underline-offset-2 hover:underline-offset-4 transition-all"
+            >
               Sign in
             </Link>
           </div>
           
-          <div className="mt-4 text-center text-sm">
-            <Link href="/" className="text-emerald-600 hover:text-emerald-700 font-medium">
+          <div className="mt-4 text-center">
+            <Link 
+              href="/" 
+              className="text-rose-600 hover:text-rose-700 font-medium text-lg underline underline-offset-2 hover:underline-offset-4 transition-all"
+            >
               ← Back to Home
             </Link>
           </div>
+
         </CardContent>
       </Card>
     </div>

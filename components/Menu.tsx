@@ -88,7 +88,11 @@ const menuTimings = [
   }
 ];
 
-const Menu = () => {
+interface MenuProps {
+  onCartUpdate?: () => void;
+}
+
+const Menu = ({ onCartUpdate }: MenuProps) => {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeMenu, setActiveMenu] = useState('breakfast');
@@ -97,6 +101,7 @@ const Menu = () => {
   const [cart, setCart] = useState<{id: number, quantity: number}[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [mobileView, setMobileView] = useState('grid'); // 'grid' or 'list'
 
   // Set up client-side only code
   useEffect(() => {
@@ -202,6 +207,16 @@ const Menu = () => {
       // Save to localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem('cart', JSON.stringify(newCart));
+        
+        // Dispatch a custom event to notify other components
+        window.dispatchEvent(new CustomEvent('cartUpdated', {
+          detail: { cart: newCart }
+        }));
+        
+        // Call the onCartUpdate callback if provided
+        if (onCartUpdate) {
+          onCartUpdate();
+        }
       }
       
       return newCart;
@@ -226,26 +241,52 @@ const Menu = () => {
     <section id="menu" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         {/* Header Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 sm:mb-16">
           <span className="inline-flex items-center bg-rose-100 text-rose-700 text-xs font-medium px-3 py-1.5 rounded-full mb-4">
             <ClockIcon className="h-3.5 w-3.5 mr-1.5 -mt-0.5" />
             {currentTime?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-serif">Our Menu</h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-rose-500 to-amber-500 mx-auto mb-8"></div>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-serif">Our Menu</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-rose-500 to-amber-500 mx-auto mb-6 sm:mb-8"></div>
+          <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">
             Discover our carefully crafted selection of authentic Indian cuisine, prepared with the finest ingredients and traditional recipes.
           </p>
         </div>
 
+        {/* Mobile View Toggle */}
+        <div className="md:hidden flex justify-center mb-6">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1 shadow-sm">
+            <button
+              onClick={() => setMobileView('grid')}
+              className={`px-4 py-2 text-sm font-medium rounded-md ${
+                mobileView === 'grid' 
+                  ? 'bg-rose-600 text-white shadow-sm' 
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Grid View
+            </button>
+            <button
+              onClick={() => setMobileView('list')}
+              className={`px-4 py-2 text-sm font-medium rounded-md ${
+                mobileView === 'list' 
+                  ? 'bg-rose-600 text-white shadow-sm' 
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              List View
+            </button>
+          </div>
+        </div>
+
         {/* Menu Navigation */}
-        <div className="mb-16">
-          <div className={`flex flex-wrap justify-center gap-3 mb-6 transition-opacity duration-300 ${showAllItems ? 'opacity-50' : 'opacity-100'}`}>
+        <div className="mb-12 sm:mb-16">
+          <div className={`flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 transition-opacity duration-300 ${showAllItems ? 'opacity-50' : 'opacity-100'}`}>
             {menuTimings.map((menu) => (!showAllItems && (
               <button
                 key={menu.id}
                 onClick={() => setActiveMenu(menu.id)}
-                className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 flex flex-col items-center justify-center min-w-[140px] ${
+                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-full text-sm font-medium transition-all duration-200 flex flex-col items-center justify-center min-w-[120px] sm:min-w-[140px] ${
                   activeMenu === menu.id
                     ? 'bg-rose-600 text-white shadow-lg shadow-rose-100'
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
@@ -259,14 +300,14 @@ const Menu = () => {
             )))}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
+          <div className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8">
             <button
               onClick={() => {
                 setShowAllItems(!showAllItems);
                 // Reset to 'All' category when toggling showAllItems
                 if (!showAllItems) setActiveCategory('All');
               }}
-              className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+              className={`px-4 py-1.5 sm:px-5 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
                 showAllItems
                   ? 'bg-emerald-600 text-white shadow-md hover:bg-emerald-700'
                   : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
@@ -287,7 +328,7 @@ const Menu = () => {
                   setActiveCategory(category);
                   setShowAllItems(false);
                 }}
-                className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-1.5 sm:px-5 rounded-full text-sm font-medium transition-all duration-200 ${
                   activeCategory === category && !showAllItems
                     ? 'bg-rose-600 text-white shadow-md'
                     : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
@@ -301,13 +342,19 @@ const Menu = () => {
 
         {/* Menu Items Grid */}
         {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className={`${
+            mobileView === 'list' 
+              ? 'grid grid-cols-1 gap-4 sm:gap-6' 
+              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8'
+          }`}>
             {filteredItems.map((item) => (
               <div 
                 key={item.id} 
-                className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-rose-50 flex flex-col h-full"
+                className={`group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-rose-50 flex flex-col h-full ${
+                  mobileView === 'list' ? 'flex-row' : ''
+                }`}
               >
-                <div className="relative h-56 w-full">
+                <div className={`relative ${mobileView === 'list' ? 'h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0' : 'h-48 sm:h-56 w-full'}`}>
                   <Image
                     src={item.image}
                     alt={item.name}
@@ -316,18 +363,18 @@ const Menu = () => {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     priority={isClient && item.id <= 3} // Only use priority on client side
                   />
-                  <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/70 to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5 bg-gradient-to-t from-black/70 to-transparent">
                     <div className="flex justify-between items-end">
                       <div>
-                        <h3 className="text-xl font-bold text-white mb-1">{item.name}</h3>
+                        <h3 className="text-base sm:text-xl font-bold text-white mb-1">{item.name}</h3>
                         <div className="flex items-center">
-                          <span className="text-amber-300 font-medium text-lg">${item.price.toFixed(2)}</span>
-                          <span className="mx-3 text-white/30">•</span>
+                          <span className="text-amber-300 font-medium text-base sm:text-lg">${item.price.toFixed(2)}</span>
+                          <span className="mx-2 sm:mx-3 text-white/30">•</span>
                           <div className="flex flex-wrap gap-1">
                             {item.availableTime.map(time => (
                               <span 
                                 key={time} 
-                                className="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white/90 backdrop-blur-sm"
+                                className="text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded-full bg-white/20 text-white/90 backdrop-blur-sm"
                               >
                                 {time.charAt(0).toUpperCase() + time.slice(1)}
                               </span>
@@ -339,12 +386,12 @@ const Menu = () => {
                   </div>
                 </div>
                 
-                <div className="p-5 flex-1 flex flex-col">
-                  <p className="text-gray-600 text-sm mb-5 leading-relaxed">{item.description}</p>
+                <div className={`p-4 sm:p-5 flex-1 flex flex-col ${mobileView === 'list' ? 'justify-center' : ''}`}>
+                  <p className="text-gray-600 text-sm mb-4 sm:mb-5 leading-relaxed">{item.description}</p>
                   <div className="mt-auto">
                     <Button 
                       onClick={() => addToCart(item.id)}
-                      className="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-medium py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2"
+                      className="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-medium py-2.5 sm:py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
                       Add to Order
@@ -355,7 +402,7 @@ const Menu = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+          <div className="text-center py-12 sm:py-16 bg-white rounded-xl border border-gray-100">
             <p className="text-gray-500 mb-4">No items available in this category for the selected time.</p>
             <Button 
               onClick={() => setActiveCategory('All')}
@@ -368,15 +415,15 @@ const Menu = () => {
         )}
 
         {/* CTA Section */}
-        <div className="mt-20 text-center">
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-3xl mx-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Hungry for more?</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+        <div className="mt-16 sm:mt-20 text-center">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 max-w-3xl mx-auto">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Hungry for more?</h3>
+            <p className="text-gray-600 mb-5 sm:mb-6 max-w-md mx-auto text-sm sm:text-base">
               Explore our full menu to discover more delicious options for any time of day.
             </p>
             <Button
               onClick={() => router.push('/cart')}
-              className="bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-medium px-8 py-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 inline-flex items-center gap-2"
+              className="bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 inline-flex items-center gap-2"
             >
               <ShoppingCart className="h-5 w-5" />
               View Cart & Checkout
