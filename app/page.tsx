@@ -420,8 +420,8 @@ export default function Page() {
         `}</style>
       </Section>
 
-      {/* MARQUEE */}
-      <div className="relative overflow-hidden">
+      {/* MARQUEE - Hidden on mobile, visible on md screens and up */}
+      <div className="hidden md:block relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white via-transparent to-white z-10"/>
         <div className="whitespace-nowrap animate-[marquee_20s_linear_infinite] py-3 text-sm font-medium text-emerald-800 md:animate-[marquee_30s_linear_infinite]">
           <span className="mx-4 md:mx-8">Irani Chai</span>
@@ -433,15 +433,15 @@ export default function Page() {
           <span className="mx-4 md:mx-8">Chicken 65</span>
           <span className="mx-4 md:mx-8">Kulfi & Falooda</span>
           
-          {/* Duplicate items for seamless loop */}
-          <span className="mx-4 md:mx-8">Irani Chai</span>
-          <span className="mx-4 md:mx-8">Osmania Biscuits</span>
-          <span className="mx-4 md:mx-8">Hyderabadi Biryani</span>
-          <span className="mx-4 md:mx-8">Samosa & Cutlets</span>
-          <span className="mx-4 md:mx-8">Bun Maska</span>
-          <span className="mx-4 md:mx-8">Vada Pav</span>
-          <span className="mx-4 md:mx-8">Chicken 65</span>
-          <span className="mx-4 md:mx-8">Kulfi & Falooda</span>
+          {/* Duplicate items for seamless loop - hidden on mobile */}
+          <span className="hidden md:inline-block mx-4 md:mx-8">Irani Chai</span>
+          <span className="hidden md:inline-block mx-4 md:mx-8">Osmania Biscuits</span>
+          <span className="hidden md:inline-block mx-4 md:mx-8">Hyderabadi Biryani</span>
+          <span className="hidden md:inline-block mx-4 md:mx-8">Samosa & Cutlets</span>
+          <span className="hidden md:inline-block mx-4 md:mx-8">Bun Maska</span>
+          <span className="hidden md:inline-block mx-4 md:mx-8">Vada Pav</span>
+          <span className="hidden md:inline-block mx-4 md:mx-8">Chicken 65</span>
+          <span className="hidden md:inline-block mx-4 md:mx-8">Kulfi & Falooda</span>
         </div>
       </div>
 
